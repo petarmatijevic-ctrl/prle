@@ -7,6 +7,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#0c0c14">
 <title>Prle - Boxing Trainer</title>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <style>
   :root {
     --bg: #0c0c14;
@@ -52,6 +54,33 @@
   .logo { font-size: 1.5rem; font-weight: 800; letter-spacing: -0.5px; }
   .logo span { color: var(--red); }
   .topbar-sub { font-size: 0.75rem; color: var(--text-dim); }
+
+  .admin-link {
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .admin-link:active { transform: scale(0.93); }
+
+  .logout-btn {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    padding: 0.3rem 0.7rem;
+    border-radius: 8px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+  }
 
   main {
     flex: 1;
@@ -100,6 +129,117 @@
 
   .empty-state { text-align: center; padding: 2rem 1rem; color: var(--text-dim); }
   .empty-state-icon { font-size: 2rem; margin-bottom: 0.4rem; opacity: 0.3; }
+
+  /* ‚îÄ‚îÄ‚îÄ PIN Screen ‚îÄ‚îÄ‚îÄ */
+  .pin-screen {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: var(--bg);
+    z-index: 300;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .pin-screen.open { display: flex; }
+
+  .pin-box {
+    text-align: center;
+    padding: 2rem;
+    width: 100%;
+    max-width: 320px;
+  }
+
+  .pin-title { font-size: 1.3rem; font-weight: 700; margin-bottom: 0.3rem; }
+  .pin-sub { font-size: 0.8rem; color: var(--text-dim); margin-bottom: 1.5rem; }
+
+  .pin-input {
+    width: 100%;
+    padding: 0.9rem;
+    border-radius: 12px;
+    border: 2px solid var(--border);
+    background: var(--card);
+    color: var(--text);
+    font-size: 1.5rem;
+    font-weight: 700;
+    text-align: center;
+    letter-spacing: 0.5rem;
+    outline: none;
+    font-family: inherit;
+    -moz-appearance: textfield;
+  }
+
+  .pin-input:focus { border-color: var(--red); }
+  .pin-input::-webkit-outer-spin-button, .pin-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+  .pin-error {
+    font-size: 0.8rem;
+    color: var(--red);
+    margin-top: 0.5rem;
+    height: 1.2rem;
+  }
+
+  .pin-actions { margin-top: 1rem; display: flex; gap: 0.5rem; }
+  .pin-actions .btn { flex: 1; }
+
+  /* ‚îÄ‚îÄ‚îÄ Booking View ‚îÄ‚îÄ‚îÄ */
+  .booking-title {
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 0.8rem;
+  }
+
+  .slot-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+  }
+
+  .slot-chip {
+    background: var(--green-dim);
+    border: 1px solid var(--green);
+    color: var(--green);
+    padding: 0.8rem 0.3rem;
+    border-radius: 10px;
+    text-align: center;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .slot-chip:active { transform: scale(0.95); }
+  .slot-chip:hover { background: var(--green); color: white; }
+
+  .booking-confirmed {
+    text-align: center;
+    padding: 3rem 1rem;
+  }
+
+  .booking-check {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: var(--green);
+    color: white;
+    font-size: 1.8rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+  }
+
+  .booking-confirmed h3 { font-size: 1.3rem; margin-bottom: 0.5rem; }
+  .booking-confirmed p { color: var(--text-dim); margin-bottom: 0.3rem; }
+  .booking-see-you { color: var(--green) !important; font-weight: 600; margin-top: 0.8rem !important; margin-bottom: 1.5rem !important; }
+
+  .loading-spinner {
+    text-align: center;
+    padding: 2rem;
+    color: var(--text-dim);
+  }
 
   /* ‚îÄ‚îÄ‚îÄ Home View ‚îÄ‚îÄ‚îÄ */
   .home-greeting { font-size: 1.3rem; font-weight: 700; margin-bottom: 0.8rem; }
@@ -213,6 +353,102 @@
   .day-tab .day-name { display: block; }
   .day-tab .day-num { display: block; font-size: 0.95rem; font-weight: 800; margin-top: 0.05rem; }
 
+  /* ‚îÄ‚îÄ‚îÄ Admin Schedule Availability ‚îÄ‚îÄ‚îÄ */
+  .avail-section { margin-top: 0.8rem; }
+  .avail-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    margin-bottom: 0.4rem;
+  }
+
+  .avail-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+  }
+
+  .avail-chip {
+    padding: 0.3rem 0.6rem;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    background: var(--green-dim);
+    color: var(--green);
+    border: 1px solid var(--green);
+  }
+
+  .source-badge {
+    font-size: 0.6rem;
+    padding: 0.15rem 0.35rem;
+    border-radius: 4px;
+    font-weight: 600;
+    margin-left: 0.3rem;
+    vertical-align: middle;
+  }
+
+  .source-booking { background: var(--gold-dim); color: var(--gold); }
+  .source-admin { background: var(--border); color: var(--text-dim); }
+
+  /* ‚îÄ‚îÄ‚îÄ Availability Modal ‚îÄ‚îÄ‚îÄ */
+  .time-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.4rem;
+    margin: 0.8rem 0;
+  }
+
+  .time-chip {
+    padding: 0.6rem 0.2rem;
+    border-radius: 8px;
+    text-align: center;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--text-dim);
+    transition: all 0.12s;
+    font-family: inherit;
+  }
+
+  .time-chip.selected {
+    background: var(--green);
+    color: white;
+    border-color: var(--green);
+  }
+
+  .time-chip.booked {
+    background: var(--red-dim);
+    color: var(--red);
+    border-color: var(--red);
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .quick-btns {
+    display: flex;
+    gap: 0.4rem;
+    margin-bottom: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .quick-btn {
+    padding: 0.35rem 0.7rem;
+    border-radius: 8px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--text-dim);
+    cursor: pointer;
+    font-family: inherit;
+  }
+
+  .quick-btn:active { transform: scale(0.95); }
+
   /* ‚îÄ‚îÄ‚îÄ Clients ‚îÄ‚îÄ‚îÄ */
   .search-box {
     width: 100%;
@@ -268,7 +504,6 @@
   }
 
   .stat-circle-svg { transform: rotate(-90deg); }
-
   .stat-circle-bg { fill: none; stroke: var(--border); }
   .stat-circle-fill { fill: none; stroke-linecap: round; transition: stroke-dashoffset 0.5s ease; }
   .stat-circle-fill.low { stroke: var(--red); }
@@ -313,18 +548,9 @@
     color: var(--text-dim);
   }
 
-  .history-toggle-icon.open {
-    transform: rotate(180deg);
-  }
-
-  .history-body {
-    display: none;
-    margin-top: 0.5rem;
-  }
-
-  .history-body.open {
-    display: block;
-  }
+  .history-toggle-icon.open { transform: rotate(180deg); }
+  .history-body { display: none; margin-top: 0.5rem; }
+  .history-body.open { display: block; }
 
   .stat-history-entry {
     font-size: 0.75rem;
@@ -350,6 +576,7 @@
     font-weight: 600;
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
+    font-family: inherit;
   }
 
   .btn:active { transform: scale(0.96); }
@@ -415,7 +642,7 @@
     border: 1px solid var(--border);
     background: var(--bg);
     color: var(--text);
-    font-size: 16px; /* prevents iOS zoom */
+    font-size: 16px;
     outline: none;
     font-family: inherit;
   }
@@ -561,123 +788,180 @@
 </head>
 <body>
 
-<div class="topbar">
-  <div>
-    <div class="logo"><span>P</span>rle</div>
-    <div class="topbar-sub">Boxing Trainer</div>
+<!-- ‚ïê‚ïê‚ïê PIN SCREEN ‚ïê‚ïê‚ïê -->
+<div class="pin-screen" id="pinScreen">
+  <div class="pin-box">
+    <div class="logo" style="font-size:2rem;margin-bottom:0.3rem"><span>P</span>rle</div>
+    <div class="pin-title" id="pinTitle">Trainer Login</div>
+    <div class="pin-sub" id="pinSub">Enter your PIN</div>
+    <input type="number" class="pin-input" id="pinInput" maxlength="6" placeholder="----" inputmode="numeric">
+    <div class="pin-error" id="pinError"></div>
+    <div class="pin-actions">
+      <button class="btn btn-secondary" onclick="closePinScreen()">Cancel</button>
+      <button class="btn btn-primary" id="pinBtn" onclick="submitPin()">Login</button>
+    </div>
   </div>
-  <div style="text-align:right"><div class="topbar-sub" id="topDate"></div></div>
 </div>
 
-<main>
-  <!-- HOME VIEW -->
-  <div class="view active" id="viewHome">
-    <h2 class="home-greeting" id="homeGreeting"></h2>
-    <div class="period-tabs" id="periodTabs">
-      <button class="period-tab active" onclick="setPeriod('week')">This Week</button>
-      <button class="period-tab" onclick="setPeriod('month')">This Month</button>
-      <button class="period-tab" onclick="setPeriod('custom')">Custom</button>
+<!-- ‚ïê‚ïê‚ïê BOOKING VIEW (public, default) ‚ïê‚ïê‚ïê -->
+<div id="appBooking">
+  <div class="topbar">
+    <div>
+      <div class="logo"><span>P</span>rle</div>
+      <div class="topbar-sub">Boxing Trainer</div>
     </div>
-    <div class="date-range" id="dateRange" style="display:none">
-      <input type="date" class="form-input" id="rangeFrom" onchange="renderHome()">
-      <span style="color:var(--text-faint);font-size:0.8rem">to</span>
-      <input type="date" class="form-input" id="rangeTo" onchange="renderHome()">
-    </div>
-    <div class="home-stats" id="homeStats"></div>
-    <div class="section-header">
-      <div class="section-title">Today's Sessions</div>
-    </div>
-    <div id="homeSessions"></div>
+    <button class="admin-link" onclick="showPinScreen()" title="Trainer Login">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+    </button>
   </div>
 
-  <!-- SCHEDULE VIEW -->
-  <div class="view" id="viewSchedule">
-    <div class="section-header">
-      <div class="section-title">Schedule</div>
-      <button class="btn btn-primary btn-small" onclick="openModal('session')">+ Session</button>
-    </div>
+  <main style="padding-bottom:2rem">
+    <h2 class="booking-title">Book a Session</h2>
+
     <div class="week-nav">
-      <button class="week-nav-btn" onclick="changeWeek(-1)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg></button>
-      <div class="week-nav-label" id="weekLabel"></div>
-      <button class="week-nav-btn" onclick="changeWeek(1)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg></button>
+      <button class="week-nav-btn" onclick="bChangeWeek(-1)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <div class="week-nav-label" id="bWeekLabel"></div>
+      <button class="week-nav-btn" onclick="bChangeWeek(1)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg></button>
     </div>
-    <div class="day-tabs" id="dayTabs"></div>
-    <div id="scheduleSessions"></div>
-  </div>
+    <div class="day-tabs" id="bDayTabs"></div>
 
-  <!-- CLIENTS VIEW -->
-  <div class="view" id="viewClients">
-    <div class="section-header">
-      <div class="section-title">Clients</div>
-      <button class="btn btn-primary btn-small" onclick="openModal('client')">+ Client</button>
+    <div id="bSlots">
+      <div class="loading-spinner">Loading available times...</div>
     </div>
-    <input type="text" class="search-box" placeholder="Search clients..." id="clientSearch" oninput="renderClients()">
-    <div id="clientList"></div>
+
+    <div id="bConfirmation" style="display:none">
+      <div class="booking-confirmed">
+        <div class="booking-check">&#10003;</div>
+        <h3>Session Booked!</h3>
+        <p id="bConfirmDetails"></p>
+        <p class="booking-see-you">See you there!</p>
+        <button class="btn btn-primary" onclick="bBackToSlots()">Book Another</button>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- ‚ïê‚ïê‚ïê ADMIN VIEW (PIN protected) ‚ïê‚ïê‚ïê -->
+<div id="appAdmin" style="display:none">
+  <div class="topbar">
+    <div>
+      <div class="logo"><span>P</span>rle</div>
+      <div class="topbar-sub">Boxing Trainer</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:0.5rem">
+      <div style="text-align:right"><div class="topbar-sub" id="topDate"></div></div>
+      <button class="logout-btn" onclick="adminLogout()">Logout</button>
+    </div>
   </div>
 
-  <!-- CLIENT DETAIL -->
-  <div class="view" id="viewClientDetail">
-    <div id="clientDetailContent"></div>
-  </div>
-</main>
+  <main>
+    <!-- HOME VIEW -->
+    <div class="view active" id="viewHome">
+      <h2 class="home-greeting" id="homeGreeting"></h2>
+      <div class="period-tabs" id="periodTabs">
+        <button class="period-tab active" onclick="setPeriod('week')">This Week</button>
+        <button class="period-tab" onclick="setPeriod('month')">This Month</button>
+        <button class="period-tab" onclick="setPeriod('custom')">Custom</button>
+      </div>
+      <div class="date-range" id="dateRange" style="display:none">
+        <input type="date" class="form-input" id="rangeFrom" onchange="renderHome()">
+        <span style="color:var(--text-faint);font-size:0.8rem">to</span>
+        <input type="date" class="form-input" id="rangeTo" onchange="renderHome()">
+      </div>
+      <div class="home-stats" id="homeStats"></div>
+      <div class="section-header">
+        <div class="section-title">Today's Sessions</div>
+      </div>
+      <div id="homeSessions"></div>
+    </div>
 
-<nav class="bottom-nav">
-  <button class="nav-item active" onclick="switchView('home')" data-view="home">
-    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-    <span class="nav-label">Home</span>
-  </button>
-  <button class="nav-item" onclick="switchView('schedule')" data-view="schedule">
-    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-    <span class="nav-label">Schedule</span>
-  </button>
-  <button class="nav-item" onclick="switchView('clients')" data-view="clients">
-    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
-    <span class="nav-label">Clients</span>
-  </button>
-</nav>
+    <!-- SCHEDULE VIEW -->
+    <div class="view" id="viewSchedule">
+      <div class="section-header">
+        <div class="section-title">Schedule</div>
+        <div style="display:flex;gap:0.3rem">
+          <button class="btn btn-success btn-small" onclick="openAvailabilityModal()">Set Times</button>
+          <button class="btn btn-primary btn-small" onclick="openModal('session')">+ Session</button>
+        </div>
+      </div>
+      <div class="week-nav">
+        <button class="week-nav-btn" onclick="aChangeWeek(-1)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg></button>
+        <div class="week-nav-label" id="aWeekLabel"></div>
+        <button class="week-nav-btn" onclick="aChangeWeek(1)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg></button>
+      </div>
+      <div class="day-tabs" id="aDayTabs"></div>
+      <div id="scheduleSessions"></div>
+      <div class="avail-section" id="availSection"></div>
+    </div>
+
+    <!-- CLIENTS VIEW -->
+    <div class="view" id="viewClients">
+      <div class="section-header">
+        <div class="section-title">Clients</div>
+        <button class="btn btn-primary btn-small" onclick="openModal('client')">+ Client</button>
+      </div>
+      <input type="text" class="search-box" placeholder="Search clients..." id="clientSearch" oninput="renderClients()">
+      <div id="clientList"></div>
+    </div>
+
+    <!-- CLIENT DETAIL -->
+    <div class="view" id="viewClientDetail">
+      <div id="clientDetailContent"></div>
+    </div>
+  </main>
+
+  <nav class="bottom-nav">
+    <button class="nav-item active" onclick="switchView('home')" data-view="home">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span class="nav-label">Home</span>
+    </button>
+    <button class="nav-item" onclick="switchView('schedule')" data-view="schedule">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+      <span class="nav-label">Schedule</span>
+    </button>
+    <button class="nav-item" onclick="switchView('clients')" data-view="clients">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+      <span class="nav-label">Clients</span>
+    </button>
+  </nav>
+</div>
 
 <div class="modal-overlay" id="modalOverlay" onclick="closeModalOutside(event)">
   <div class="modal" id="modalContent"></div>
 </div>
 
 <script>
+// ‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê
+// FIREBASE INIT
+// ‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê
+firebase.initializeApp({
+  apiKey: "AIzaSyCqQb62v7xeTh2zDRkj4VU8XDK0ZUAn0So",
+  authDomain: "prle-4ccce.firebaseapp.com",
+  projectId: "prle-4ccce",
+  storageBucket: "prle-4ccce.firebasestorage.app",
+  messagingSenderId: "154412359220",
+  appId: "1:154412359220:web:cd9118bdeb75a7dcc2f461"
+});
+const db = firebase.firestore();
+
+// ‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê
+// CONSTANTS & HELPERS
+// ‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê
 const STORAGE_KEY = 'prle_data';
 const STAT_KEYS = ['footwork','speed','strength','power','durability','heart'];
 const STAT_LABELS = {footwork:'Footwork',speed:'Speed',strength:'Strength',power:'Power',durability:'Durability',heart:'Heart'};
 const DAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
 const DAYS_FULL = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
-
-function loadData() {
-  const raw = localStorage.getItem(STORAGE_KEY);
-  if (raw) {
-    const d = JSON.parse(raw);
-    d.clients.forEach(c => {
-      if (!c.statsHistory) c.statsHistory = [];
-      if (!c.age) c.age = '';
-      if (!c.weight) c.weight = '';
-      if (!c.height) c.height = '';
-      if (!c.photo) c.photo = '';
-    });
-    if (!d.sessions) d.sessions = [];
-    return d;
-  }
-  return { clients: [], sessions: [] };
-}
-
-function saveData(d) { localStorage.setItem(STORAGE_KEY, JSON.stringify(d)); }
-
-let data = loadData();
-let currentView = 'home';
-let selectedScheduleDay = getTodayDayIndex();
-let weekOffset = 0;
-let homePeriod = 'week';
-let tempPhoto = '';
+const ALL_TIMES = [];
+for (let h = 7; h <= 21; h++) ALL_TIMES.push(String(h).padStart(2,'0') + ':00');
 
 function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
-function getClient(id) { return data.clients.find(c => c.id === id); }
-function getInitials(n) { return n.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2); }
-function formatTime(t) { return t; }
 function getTodayDayIndex() { const d = new Date().getDay(); return d === 0 ? 6 : d - 1; }
+function dateStr(d) { return d.toISOString().split('T')[0]; }
+function todayStr() { return dateStr(new Date()); }
+function formatDate(s) { return new Date(s+'T00:00:00').toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'}); }
+function formatDateShort(s) { return new Date(s+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}); }
+function formatDateLong(s) { return new Date(s+'T00:00:00').toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'}); }
 
 function getWeekDates(offset = 0) {
   const today = new Date();
@@ -691,37 +975,10 @@ function getWeekDates(offset = 0) {
   return dates;
 }
 
-function dateStr(d) { return d.toISOString().split('T')[0]; }
-function todayStr() { return dateStr(new Date()); }
-function formatDate(s) { return new Date(s+'T00:00:00').toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'}); }
-function formatDateShort(s) { return new Date(s+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}); }
-
-function getSessionsForDate(date) {
-  return data.sessions.filter(s => s.date === date).sort((a,b) => a.time.localeCompare(b.time));
-}
-
-function getSessionsInRange(startDate, endDate) {
-  return data.sessions.filter(s => s.date >= startDate && s.date <= endDate);
-}
-
-function getEarnings(sessions) {
-  return sessions.reduce((sum, s) => sum + (s.price || 20), 0);
-}
-
-function getLatestStats(c) { return c.statsHistory?.length ? c.statsHistory[c.statsHistory.length-1] : null; }
-function getPreviousStats(c) { return c.statsHistory?.length >= 2 ? c.statsHistory[c.statsHistory.length-2] : null; }
-
+function getInitials(n) { return n.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2); }
 function getStatColor(v) { return v < 35 ? 'low' : v < 70 ? 'mid' : 'high'; }
 
-function changeText(cur, prev) {
-  if (prev == null) return '';
-  const diff = cur - prev;
-  if (diff === 0) return '<span class="stat-circle-change same">--</span>';
-  const pct = prev > 0 ? Math.round((diff/prev)*100) : (diff > 0 ? 100 : -100);
-  return diff > 0 ? `<span class="stat-circle-change up">+${pct}%</span>` : `<span class="stat-circle-change down">${pct}%</span>`;
-}
-
-function avatarHTML(c, size) {
+function avatarHTML(c) {
   if (c.photo) return `<img src="${c.photo}" alt="${c.name}">`;
   return getInitials(c.name);
 }
@@ -736,6 +993,14 @@ function circleStatSVG(val, size) {
     <circle cx="${size/2}" cy="${size/2}" r="${r}" class="stat-circle-fill ${color}" stroke-width="5" stroke-dasharray="${circ}" stroke-dashoffset="${offset}"/>
     <text x="${size/2}" y="${size/2}" class="stat-circle-text" text-anchor="middle" dominant-baseline="central" transform="rotate(90 ${size/2} ${size/2})">${val}</text>
   </svg>`;
+}
+
+function changeText(cur, prev) {
+  if (prev == null) return '';
+  const diff = cur - prev;
+  if (diff === 0) return '<span class="stat-circle-change same">--</span>';
+  const pct = prev > 0 ? Math.round((diff/prev)*100) : (diff > 0 ? 100 : -100);
+  return diff > 0 ? `<span class="stat-circle-change up">+${pct}%</span>` : `<span class="stat-circle-change down">${pct}%</span>`;
 }
 
 function resizeImage(file, maxSize, cb) {
@@ -756,10 +1021,354 @@ function resizeImage(file, maxSize, cb) {
   reader.readAsDataURL(file);
 }
 
-// ‚îÄ‚îÄ‚îÄ Navigation ‚îÄ‚îÄ‚îÄ
+// ‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê
+// LOCAL DATA (clients only, admin device)
+// ‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê
+function loadLocal() {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (raw) {
+    const d = JSON.parse(raw);
+    if (!d.clients) d.clients = [];
+    d.clients.forEach(c => {
+      if (!c.statsHistory) c.statsHistory = [];
+      if (!c.age) c.age = '';
+      if (!c.weight) c.weight = '';
+      if (!c.height) c.height = '';
+      if (!c.photo) c.photo = '';
+    });
+    return d;
+  }
+  return { clients: [] };
+}
+
+function saveLocal() { localStorage.setItem(STORAGE_KEY, JSON.stringify(localData)); }
+
+let localData = loadLocal();
+function getClient(id) { return localData.clients.find(c => c.id === id); }
+function getLatestStats(c) { return c.statsHistory?.length ? c.statsHistory[c.statsHistory.length-1] : null; }
+function getPreviousStats(c) { return c.statsHistory?.length >= 2 ? c.statsHistory[c.statsHistory.length-2] : null; }
+
+// ‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê
+// STATE
+// ‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê
+let isAdmin = false;
+let currentView = 'home';
+let homePeriod = 'week';
+let tempPhoto = '';
+
+// Booking view state
+let bWeekOffset = 0;
+let bSelectedDay = getTodayDayIndex();
+let bAvailUnsub = null;
+let bSessionsUnsub = null;
+let bAvailSlots = [];
+let bBookedTimes = [];
+
+// Admin schedule state
+let aWeekOffset = 0;
+let aSelectedDay = getTodayDayIndex();
+let aSessionsUnsub = null;
+let aAvailUnsub = null;
+let aSessionsList = [];
+let aAvailSlots = [];
+
+// Firestore sessions cache for home view
+let allSessions = [];
+let allSessionsUnsub = null;
+
+// ‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê
+// MODE SWITCHING
+// ‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê
+function showBookingView() {
+  isAdmin = false;
+  document.getElementById('appBooking').style.display = '';
+  document.getElementById('appAdmin').style.display = 'none';
+  bRenderWeek();
+}
+
+function showAdminView() {
+  isAdmin = true;
+  document.getElementById('appBooking').style.display = 'none';
+  document.getElementById('appAdmin').style.display = '';
+  document.getElementById('topDate').textContent = new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+  migrateOldSessions();
+  listenAllSessions();
+  renderHome();
+}
+
+function adminLogout() {
+  sessionStorage.removeItem('prle_admin');
+  if (aSessionsUnsub) { aSessionsUnsub(); aSessionsUnsub = null; }
+  if (aAvailUnsub) { aAvailUnsub(); aAvailUnsub = null; }
+  if (allSessionsUnsub) { allSessionsUnsub(); allSessionsUnsub = null; }
+  showBookingView();
+}
+
+// ‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê
+// PIN MANAGEMENT
+// ‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê
+let adminPin = null;
+let pinMode = 'login'; // 'login' or 'setup'
+
+async function loadPin() {
+  try {
+    const doc = await db.collection('config').doc('settings').get();
+    if (doc.exists && doc.data().pin) {
+      adminPin = doc.data().pin;
+      return true;
+    }
+    return false;
+  } catch(e) {
+    console.error('Error loading PIN:', e);
+    return false;
+  }
+}
+
+function showPinScreen() {
+  const screen = document.getElementById('pinScreen');
+  const input = document.getElementById('pinInput');
+  const error = document.getElementById('pinError');
+  input.value = '';
+  error.textContent = '';
+
+  loadPin().then(hasPin => {
+    if (hasPin) {
+      pinMode = 'login';
+      document.getElementById('pinTitle').textContent = 'Trainer Login';
+      document.getElementById('pinSub').textContent = 'Enter your PIN';
+      document.getElementById('pinBtn').textContent = 'Login';
+    } else {
+      pinMode = 'setup';
+      document.getElementById('pinTitle').textContent = 'Set Up PIN';
+      document.getElementById('pinSub').textContent = 'Create a PIN for admin access';
+      document.getElementById('pinBtn').textContent = 'Set PIN';
+    }
+    screen.classList.add('open');
+    setTimeout(() => input.focus(), 100);
+  });
+}
+
+function closePinScreen() {
+  document.getElementById('pinScreen').classList.remove('open');
+}
+
+async function submitPin() {
+  const input = document.getElementById('pinInput');
+  const error = document.getElementById('pinError');
+  const val = input.value.trim();
+
+  if (!val || val.length < 4) {
+    error.textContent = 'PIN must be at least 4 digits';
+    return;
+  }
+
+  if (pinMode === 'setup') {
+    try {
+      await db.collection('config').doc('settings').set({ pin: val, defaultPrice: 20 }, { merge: true });
+      adminPin = val;
+      sessionStorage.setItem('prle_admin', 'true');
+      closePinScreen();
+      showAdminView();
+    } catch(e) {
+      error.textContent = 'Error saving PIN. Try again.';
+    }
+  } else {
+    if (val === adminPin) {
+      sessionStorage.setItem('prle_admin', 'true');
+      closePinScreen();
+      showAdminView();
+    } else {
+      error.textContent = 'Wrong PIN';
+      input.value = '';
+      input.focus();
+    }
+  }
+}
+
+// Enter key on PIN input
+document.getElementById('pinInput').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') submitPin();
+});
+
+// ‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê
+// BOOKING VIEW
+// ‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê
+function bGetSelectedDate() {
+  const wd = getWeekDates(bWeekOffset);
+  return dateStr(wd[bSelectedDay]);
+}
+
+function bRenderWeek() {
+  const wd = getWeekDates(bWeekOffset);
+  const todayIdx = bWeekOffset === 0 ? getTodayDayIndex() : -1;
+  const ls = wd[0].toLocaleDateString('en-US',{month:'short',day:'numeric'});
+  const le = wd[6].toLocaleDateString('en-US',{month:'short',day:'numeric'});
+  const wl = document.getElementById('bWeekLabel');
+  wl.innerHTML = bWeekOffset === 0 ? `<span class="cw">This week</span> &middot; ${ls} - ${le}` : `${ls} - ${le}`;
+
+  document.getElementById('bDayTabs').innerHTML = DAYS.map((d,i) => {
+    const date = wd[i];
+    const isPast = bWeekOffset === 0 && i < getTodayDayIndex();
+    return `<div class="day-tab ${i===bSelectedDay?'active':''}" style="${i===todayIdx?'border-color:var(--gold)':''}${isPast?';opacity:0.4':''}" onclick="bSelectDay(${i})">
+      <span class="day-name">${d}</span><span class="day-num">${date.getDate()}</span></div>`;
+  }).join('');
+
+  bListenToDate(bGetSelectedDate());
+}
+
+function bSelectDay(i) {
+  bSelectedDay = i;
+  bRenderWeek();
+}
+
+function bChangeWeek(dir) {
+  bWeekOffset += dir;
+  bSelectedDay = bWeekOffset === 0 ? getTodayDayIndex() : 0;
+  bRenderWeek();
+}
+
+function bListenToDate(date) {
+  if (bAvailUnsub) bAvailUnsub();
+  if (bSessionsUnsub) bSessionsUnsub();
+
+  bAvailSlots = [];
+  bBookedTimes = [];
+
+  const slotsEl = document.getElementById('bSlots');
+  slotsEl.innerHTML = '<div class="loading-spinner">Loading...</div>';
+
+  bAvailUnsub = db.collection('availability').doc(date).onSnapshot(doc => {
+    bAvailSlots = doc.exists ? (doc.data().slots || []) : [];
+    bDisplaySlots();
+  }, err => {
+    slotsEl.innerHTML = '<div class="empty-state"><p>Could not load times. Check your connection.</p></div>';
+  });
+
+  bSessionsUnsub = db.collection('sessions').where('date', '==', date).onSnapshot(snap => {
+    bBookedTimes = snap.docs.map(d => d.data().time);
+    bDisplaySlots();
+  });
+}
+
+function bDisplaySlots() {
+  const available = bAvailSlots.filter(s => !bBookedTimes.includes(s)).sort();
+  const slotsEl = document.getElementById('bSlots');
+  const date = bGetSelectedDate();
+
+  // Don't show slots for past days
+  if (date < todayStr()) {
+    slotsEl.innerHTML = '<div class="empty-state"><div class="empty-state-icon">---</div><p>This day has passed</p></div>';
+    return;
+  }
+
+  if (available.length === 0) {
+    slotsEl.innerHTML = '<div class="empty-state"><div class="empty-state-icon">---</div><p>No available times for this day</p></div>';
+    return;
+  }
+
+  slotsEl.innerHTML = `
+    <div class="avail-label" style="margin-top:0.3rem">Available times</div>
+    <div class="slot-grid">
+      ${available.map(t => `<div class="slot-chip" onclick="bOpenBooking('${date}','${t}')">${t}</div>`).join('')}
+    </div>`;
+}
+
+function bOpenBooking(date, time) {
+  const ct = document.getElementById('modalContent');
+  ct.innerHTML = `
+    <div class="modal-header">
+      <div class="modal-title">Book Session</div>
+      <button class="modal-close" onclick="closeModal()">&times;</button>
+    </div>
+    <div style="text-align:center;margin-bottom:1rem">
+      <div style="font-size:1.5rem;font-weight:800;color:var(--gold)">${time}</div>
+      <div style="font-size:0.85rem;color:var(--text-dim)">${formatDateLong(date)}</div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Your Name</label>
+      <input type="text" class="form-input" id="bName" placeholder="Full name">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Phone Number</label>
+      <input type="tel" class="form-input" id="bPhone" placeholder="091 234 5678">
+    </div>
+    <div id="bBookError" class="pin-error"></div>
+    <div class="form-actions">
+      <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" id="bBookBtn" onclick="bConfirmBooking('${date}','${time}')">Book Now</button>
+    </div>`;
+  document.getElementById('modalOverlay').classList.add('open');
+  setTimeout(() => document.getElementById('bName').focus(), 100);
+}
+
+async function bConfirmBooking(date, time) {
+  const name = document.getElementById('bName').value.trim();
+  const phone = document.getElementById('bPhone').value.trim();
+  const errEl = document.getElementById('bBookError');
+
+  if (!name) { errEl.textContent = 'Please enter your name'; return; }
+  if (!phone) { errEl.textContent = 'Please enter your phone number'; return; }
+
+  const btn = document.getElementById('bBookBtn');
+  btn.textContent = 'Booking...';
+  btn.disabled = true;
+
+  try {
+    await db.runTransaction(async (t) => {
+      const availRef = db.collection('availability').doc(date);
+      const doc = await t.get(availRef);
+      const slots = doc.exists ? (doc.data().slots || []) : [];
+
+      if (!slots.includes(time)) {
+        throw new Error('TAKEN');
+      }
+
+      t.update(availRef, { slots: slots.filter(s => s !== time) });
+
+      const sessionRef = db.collection('sessions').doc();
+      t.set(sessionRef, {
+        date,
+        time,
+        clientName: name,
+        clientPhone: phone,
+        price: 20,
+        notes: '',
+        source: 'booking',
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    });
+
+    closeModal();
+
+    // Show confirmation
+    document.getElementById('bSlots').style.display = 'none';
+    document.getElementById('bConfirmation').style.display = '';
+    document.getElementById('bConfirmDetails').textContent = `${formatDateLong(date)} at ${time}`;
+
+  } catch(e) {
+    if (e.message === 'TAKEN') {
+      errEl.textContent = 'This slot was just taken! Please pick another.';
+    } else {
+      errEl.textContent = 'Error booking. Please try again.';
+      console.error(e);
+    }
+    btn.textContent = 'Book Now';
+    btn.disabled = false;
+  }
+}
+
+function bBackToSlots() {
+  document.getElementById('bSlots').style.display = '';
+  document.getElementById('bConfirmation').style.display = 'none';
+  bRenderWeek();
+}
+
+// ‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê
+// ADMIN: NAVIGATION
+// ‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê
 function switchView(view) {
   currentView = view;
-  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('#appAdmin .view').forEach(v => v.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   const viewId = 'view' + view.charAt(0).toUpperCase() + view.slice(1);
   document.getElementById(viewId).classList.add('active');
@@ -771,12 +1380,22 @@ function switchView(view) {
 function renderCurrentView() {
   switch(currentView) {
     case 'home': renderHome(); break;
-    case 'schedule': renderSchedule(); break;
+    case 'schedule': aRenderSchedule(); break;
     case 'clients': renderClients(); break;
   }
 }
 
-// ‚îÄ‚îÄ‚îÄ Home View ‚îÄ‚îÄ‚îÄ
+// ‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê
+// ADMIN: HOME VIEW
+// ‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê
+function listenAllSessions() {
+  if (allSessionsUnsub) allSessionsUnsub();
+  allSessionsUnsub = db.collection('sessions').onSnapshot(snap => {
+    allSessions = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    if (isAdmin && currentView === 'home') renderHome();
+  });
+}
+
 function setPeriod(p) {
   homePeriod = p;
   document.querySelectorAll('.period-tab').forEach(t => t.classList.remove('active'));
@@ -802,7 +1421,7 @@ function renderHome() {
   else if (hour >= 17) g = 'Good evening, Luka';
   document.getElementById('homeGreeting').textContent = g;
 
-  let startDate, endDate = todayStr();
+  let startDate, endDate;
   if (homePeriod === 'week') {
     const wd = getWeekDates(0);
     startDate = dateStr(wd[0]);
@@ -817,8 +1436,8 @@ function renderHome() {
     endDate = document.getElementById('rangeTo')?.value || '2099-12-31';
   }
 
-  const periodSessions = getSessionsInRange(startDate, endDate);
-  const earnings = getEarnings(periodSessions);
+  const periodSessions = allSessions.filter(s => s.date >= startDate && s.date <= endDate);
+  const earnings = periodSessions.reduce((sum, s) => sum + (s.price || 20), 0);
 
   document.getElementById('homeStats').innerHTML = `
     <div class="home-stat">
@@ -830,32 +1449,35 @@ function renderHome() {
       <div class="home-stat-label">Earned</div>
     </div>
     <div class="home-stat">
-      <div class="home-stat-num" style="color:var(--gold)">${data.clients.length}</div>
+      <div class="home-stat-num" style="color:var(--gold)">${localData.clients.length}</div>
       <div class="home-stat-label">Clients</div>
     </div>`;
 
-  const todaySessions = getSessionsForDate(todayStr());
+  const todaySess = allSessions.filter(s => s.date === todayStr()).sort((a,b) => a.time.localeCompare(b.time));
   const container = document.getElementById('homeSessions');
-  if (todaySessions.length === 0) {
+
+  if (!todaySess.length) {
     container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">---</div><p>No sessions today</p></div>';
     return;
   }
 
-  container.innerHTML = todaySessions.map(s => {
-    const c = getClient(s.clientId);
-    if (!c) return '';
+  container.innerHTML = todaySess.map(s => {
+    const localClient = s.clientId ? getClient(s.clientId) : null;
+    const name = localClient ? localClient.name : s.clientName || 'Unknown';
+    const badge = s.source === 'booking' ? '<span class="source-badge source-booking">booked</span>' : '';
     return `
-      <div class="card" onclick="showClientDetail('${s.clientId}')">
+      <div class="card" ${localClient ? `onclick="showClientDetail('${s.clientId}')"` : ''}>
         <div class="card-row">
           <div style="display:flex;align-items:center;gap:0.6rem">
-            <div class="client-avatar" style="width:34px;height:34px;font-size:0.75rem">${avatarHTML(c)}</div>
+            <div class="client-avatar" style="width:34px;height:34px;font-size:0.75rem">${localClient ? avatarHTML(localClient) : getInitials(name)}</div>
             <div>
-              <div class="card-name">${c.name}</div>
+              <div class="card-name">${name}${badge}</div>
+              ${s.clientPhone && !localClient ? `<div class="card-sub">${s.clientPhone}</div>` : ''}
               ${s.notes ? `<div class="card-sub">${s.notes}</div>` : ''}
             </div>
           </div>
           <div style="text-align:right">
-            <div class="card-time">${formatTime(s.time)}</div>
+            <div class="card-time">${s.time}</div>
             <div class="card-price">${s.price || 20}&euro;</div>
           </div>
         </div>
@@ -863,57 +1485,172 @@ function renderHome() {
   }).join('');
 }
 
-// ‚îÄ‚îÄ‚îÄ Schedule ‚îÄ‚îÄ‚îÄ
-function renderSchedule() {
-  const wd = getWeekDates(weekOffset);
-  const todayIdx = weekOffset === 0 ? getTodayDayIndex() : -1;
+// ‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê
+// ADMIN: SCHEDULE VIEW
+// ‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê
+function aGetSelectedDate() {
+  const wd = getWeekDates(aWeekOffset);
+  return dateStr(wd[aSelectedDay]);
+}
+
+function aRenderSchedule() {
+  const wd = getWeekDates(aWeekOffset);
+  const todayIdx = aWeekOffset === 0 ? getTodayDayIndex() : -1;
   const ls = wd[0].toLocaleDateString('en-US',{month:'short',day:'numeric'});
   const le = wd[6].toLocaleDateString('en-US',{month:'short',day:'numeric'});
-  const wl = document.getElementById('weekLabel');
-  wl.innerHTML = weekOffset === 0 ? `<span class="cw">This week</span> &middot; ${ls} - ${le}` : `${ls} - ${le}`;
+  const wl = document.getElementById('aWeekLabel');
+  wl.innerHTML = aWeekOffset === 0 ? `<span class="cw">This week</span> &middot; ${ls} - ${le}` : `${ls} - ${le}`;
 
-  document.getElementById('dayTabs').innerHTML = DAYS.map((d,i) => {
+  document.getElementById('aDayTabs').innerHTML = DAYS.map((d,i) => {
     const date = wd[i];
-    return `<div class="day-tab ${i===selectedScheduleDay?'active':''}" style="${i===todayIdx?'border-color:var(--gold)':''}" onclick="selectDay(${i})">
+    return `<div class="day-tab ${i===aSelectedDay?'active':''}" style="${i===todayIdx?'border-color:var(--gold)':''}" onclick="aSelectDay(${i})">
       <span class="day-name">${d}</span><span class="day-num">${date.getDate()}</span></div>`;
   }).join('');
 
-  const selDate = dateStr(wd[selectedScheduleDay]);
-  const sessions = getSessionsForDate(selDate);
-  const ct = document.getElementById('scheduleSessions');
+  aListenToDate(aGetSelectedDate());
+}
 
-  if (!sessions.length) {
-    ct.innerHTML = `<div class="empty-state"><div class="empty-state-icon">---</div><p>No sessions on ${DAYS_FULL[selectedScheduleDay]}</p></div>`;
+function aSelectDay(i) { aSelectedDay = i; aRenderSchedule(); }
+function aChangeWeek(dir) { aWeekOffset += dir; aSelectedDay = aWeekOffset === 0 ? getTodayDayIndex() : 0; aRenderSchedule(); }
+
+function aListenToDate(date) {
+  if (aSessionsUnsub) aSessionsUnsub();
+  if (aAvailUnsub) aAvailUnsub();
+
+  aSessionsList = [];
+  aAvailSlots = [];
+
+  aSessionsUnsub = db.collection('sessions').where('date', '==', date).onSnapshot(snap => {
+    aSessionsList = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a,b) => a.time.localeCompare(b.time));
+    aRenderDaySessions();
+  });
+
+  aAvailUnsub = db.collection('availability').doc(date).onSnapshot(doc => {
+    aAvailSlots = doc.exists ? (doc.data().slots || []) : [];
+    aRenderDaySessions();
+  });
+}
+
+function aRenderDaySessions() {
+  const ct = document.getElementById('scheduleSessions');
+  const bookedTimes = aSessionsList.map(s => s.time);
+  const availLeft = aAvailSlots.filter(s => !bookedTimes.includes(s)).sort();
+
+  if (!aSessionsList.length && !availLeft.length) {
+    ct.innerHTML = `<div class="empty-state"><div class="empty-state-icon">---</div><p>No sessions or availability set for ${DAYS_FULL[aSelectedDay]}</p></div>`;
+    document.getElementById('availSection').innerHTML = '';
     return;
   }
 
-  ct.innerHTML = sessions.map(s => {
-    const c = getClient(s.clientId);
-    if (!c) return '';
-    return `<div class="card"><div class="card-row">
-      <div style="display:flex;align-items:center;gap:0.6rem">
-        <div class="client-avatar" style="width:34px;height:34px;font-size:0.75rem">${avatarHTML(c)}</div>
-        <div><div class="card-name">${c.name}</div>${s.notes?`<div class="card-sub">${s.notes}</div>`:''}</div>
-      </div>
-      <div style="display:flex;align-items:center;gap:0.4rem">
-        <div style="text-align:right"><div class="card-time">${formatTime(s.time)}</div><div class="card-price">${s.price||20}&euro;</div></div>
-        <button class="btn btn-danger btn-icon btn-small" onclick="event.stopPropagation();deleteSession('${s.id}')" title="Remove">x</button>
-      </div>
-    </div></div>`;
-  }).join('');
+  let html = '';
+  if (aSessionsList.length) {
+    html = aSessionsList.map(s => {
+      const localClient = s.clientId ? getClient(s.clientId) : null;
+      const name = localClient ? localClient.name : s.clientName || 'Unknown';
+      const badge = s.source === 'booking' ? '<span class="source-badge source-booking">booked</span>' : '';
+      return `<div class="card"><div class="card-row">
+        <div style="display:flex;align-items:center;gap:0.6rem">
+          <div class="client-avatar" style="width:34px;height:34px;font-size:0.75rem">${localClient ? avatarHTML(localClient) : getInitials(name)}</div>
+          <div>
+            <div class="card-name">${name}${badge}</div>
+            ${s.clientPhone && !localClient ? `<div class="card-sub">${s.clientPhone}</div>` : ''}
+            ${s.notes ? `<div class="card-sub">${s.notes}</div>` : ''}
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:0.4rem">
+          <div style="text-align:right"><div class="card-time">${s.time}</div><div class="card-price">${s.price||20}&euro;</div></div>
+          <button class="btn btn-danger btn-icon btn-small" onclick="event.stopPropagation();deleteSession('${s.id}','${s.date}','${s.time}','${s.source}')" title="Remove">x</button>
+        </div>
+      </div></div>`;
+    }).join('');
+  }
+
+  ct.innerHTML = html;
+
+  // Show remaining available slots
+  const availSec = document.getElementById('availSection');
+  if (availLeft.length) {
+    availSec.innerHTML = `
+      <div class="avail-label">Still Available</div>
+      <div class="avail-chips">${availLeft.map(t => `<div class="avail-chip">${t}</div>`).join('')}</div>`;
+  } else {
+    availSec.innerHTML = '';
+  }
 }
 
-function selectDay(i) { selectedScheduleDay = i; renderSchedule(); }
-function changeWeek(dir) { weekOffset += dir; selectedScheduleDay = weekOffset === 0 ? getTodayDayIndex() : 0; renderSchedule(); }
+// ‚îÄ‚îÄ‚îÄ Availability Modal ‚îÄ‚îÄ‚îÄ
+function openAvailabilityModal() {
+  const date = aGetSelectedDate();
+  const bookedTimes = aSessionsList.map(s => s.time);
+  const currentAvail = [...aAvailSlots];
 
-// ‚îÄ‚îÄ‚îÄ Clients ‚îÄ‚îÄ‚îÄ
+  const ct = document.getElementById('modalContent');
+  ct.innerHTML = `
+    <div class="modal-header">
+      <div class="modal-title">Set Availability</div>
+      <button class="modal-close" onclick="closeModal()">&times;</button>
+    </div>
+    <div style="font-size:0.85rem;color:var(--text-dim);margin-bottom:0.8rem">${formatDateLong(date)}</div>
+    <div class="quick-btns">
+      <button class="quick-btn" onclick="availQuick('morning')">Morning (7-12)</button>
+      <button class="quick-btn" onclick="availQuick('afternoon')">Afternoon (13-18)</button>
+      <button class="quick-btn" onclick="availQuick('full')">Full Day (7-21)</button>
+      <button class="quick-btn" onclick="availQuick('clear')">Clear All</button>
+    </div>
+    <div class="time-grid" id="timeGrid">
+      ${ALL_TIMES.map(t => {
+        const isBooked = bookedTimes.includes(t);
+        const isSelected = currentAvail.includes(t) || isBooked;
+        const cls = isBooked ? 'booked' : (isSelected ? 'selected' : '');
+        return `<button class="time-chip ${cls}" data-time="${t}" ${isBooked ? 'disabled' : ''} onclick="toggleTimeChip(this)">${t}${isBooked ? ' &#128274;' : ''}</button>`;
+      }).join('')}
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveAvailability('${date}')">Save</button>
+    </div>`;
+
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+function toggleTimeChip(el) {
+  if (el.disabled) return;
+  el.classList.toggle('selected');
+}
+
+function availQuick(preset) {
+  const chips = document.querySelectorAll('#timeGrid .time-chip:not(.booked)');
+  chips.forEach(c => {
+    const h = parseInt(c.dataset.time);
+    if (preset === 'clear') { c.classList.remove('selected'); }
+    else if (preset === 'morning') { c.classList.toggle('selected', h >= 7 && h < 12); }
+    else if (preset === 'afternoon') { c.classList.toggle('selected', h >= 13 && h < 18); }
+    else if (preset === 'full') { c.classList.add('selected'); }
+  });
+}
+
+async function saveAvailability(date) {
+  const selected = Array.from(document.querySelectorAll('#timeGrid .time-chip.selected:not(.booked)')).map(c => c.dataset.time);
+  // Also keep booked times in availability conceptually (they're consumed)
+  try {
+    await db.collection('availability').doc(date).set({ slots: selected.sort() });
+    closeModal();
+  } catch(e) {
+    console.error('Error saving availability:', e);
+    alert('Error saving. Try again.');
+  }
+}
+
+// ‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê
+// ADMIN: CLIENTS VIEW
+// ‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê
 function renderClients() {
   const q = (document.getElementById('clientSearch')?.value || '').toLowerCase();
-  const filtered = data.clients.filter(c => c.name.toLowerCase().includes(q)).sort((a,b) => a.name.localeCompare(b.name));
+  const filtered = localData.clients.filter(c => c.name.toLowerCase().includes(q)).sort((a,b) => a.name.localeCompare(b.name));
   const ct = document.getElementById('clientList');
 
   if (!filtered.length) {
-    ct.innerHTML = `<div class="empty-state"><div class="empty-state-icon">---</div><p>${data.clients.length===0?'Add your first client':'No matches'}</p></div>`;
+    ct.innerHTML = `<div class="empty-state"><div class="empty-state-icon">---</div><p>${localData.clients.length===0?'Add your first client':'No matches'}</p></div>`;
     return;
   }
 
@@ -928,17 +1665,20 @@ function renderClients() {
   }).join('');
 }
 
-// ‚îÄ‚îÄ‚îÄ Client Detail ‚îÄ‚îÄ‚îÄ
+// ‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê
+// ADMIN: CLIENT DETAIL
+// ‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê
 function showClientDetail(clientId) {
   const c = getClient(clientId);
   if (!c) return;
 
-  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('#appAdmin .view').forEach(v => v.classList.remove('active'));
   document.getElementById('viewClientDetail').classList.add('active');
 
-  const sessions = data.sessions.filter(s => s.clientId === clientId);
-  const upcoming = sessions.filter(s => s.date >= todayStr()).sort((a,b) => a.date.localeCompare(b.date)||a.time.localeCompare(b.time));
-  const schedInfo = upcoming.length ? upcoming.slice(0,4).map(s => `${formatDate(s.date)} ${formatTime(s.time)}`).join(', ') : 'No upcoming sessions';
+  // Find upcoming sessions for this client from Firestore
+  const clientSessions = allSessions.filter(s => s.clientId === clientId || (s.clientName === c.name && s.clientPhone === c.phone));
+  const upcoming = clientSessions.filter(s => s.date >= todayStr()).sort((a,b) => a.date.localeCompare(b.date)||a.time.localeCompare(b.time));
+  const schedInfo = upcoming.length ? upcoming.slice(0,4).map(s => `${formatDate(s.date)} ${s.time}`).join(', ') : 'No upcoming sessions';
 
   const meta = [c.age ? c.age + ' yrs' : '', c.weight ? c.weight + ' kg' : '', c.height ? c.height + ' cm' : ''].filter(Boolean).join(' / ');
 
@@ -1008,7 +1748,14 @@ function showClientDetail(clientId) {
     ${histHTML}`;
 }
 
-// ‚îÄ‚îÄ‚îÄ Modals ‚îÄ‚îÄ‚îÄ
+function toggleHistory() {
+  document.getElementById('histBody').classList.toggle('open');
+  document.getElementById('histIcon').classList.toggle('open');
+}
+
+// ‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê
+// MODALS & CRUD
+// ‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê
 function openModal(type, editId) {
   const ov = document.getElementById('modalOverlay');
   const ct = document.getElementById('modalContent');
@@ -1035,14 +1782,14 @@ function openModal(type, editId) {
   }
 
   else if (type === 'session') {
-    if (!data.clients.length) {
+    if (!localData.clients.length) {
       ct.innerHTML = `<div class="modal-header"><div class="modal-title">New Session</div><button class="modal-close" onclick="closeModal()">&times;</button></div>
         <div class="empty-state"><p>Add a client first.</p></div>
         <div class="form-actions"><button class="btn btn-primary" onclick="closeModal();switchView('clients');openModal('client')">Add Client</button></div>`;
     } else {
-      const opts = data.clients.sort((a,b)=>a.name.localeCompare(b.name)).map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
-      const wd = getWeekDates(weekOffset);
-      const dd = dateStr(wd[selectedScheduleDay]);
+      const opts = localData.clients.sort((a,b)=>a.name.localeCompare(b.name)).map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+      const wd = getWeekDates(aWeekOffset);
+      const dd = dateStr(wd[aSelectedDay]);
       ct.innerHTML = `
         <div class="modal-header"><div class="modal-title">New Session</div><button class="modal-close" onclick="closeModal()">&times;</button></div>
         <div class="form-group"><label class="form-label">Client</label><select class="form-select" id="fSessionClient">${opts}</select></div>
@@ -1085,7 +1832,7 @@ function handlePhoto(input) {
 function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); }
 function closeModalOutside(e) { if (e.target === e.currentTarget) closeModal(); }
 
-// ‚îÄ‚îÄ‚îÄ CRUD ‚îÄ‚îÄ‚îÄ
+// ‚îÄ‚îÄ‚îÄ Save Client (localStorage) ‚îÄ‚îÄ‚îÄ
 function saveClient(editId) {
   const name = document.getElementById('fClientName').value.trim();
   if (!name) return;
@@ -1099,13 +1846,14 @@ function saveClient(editId) {
     const c = getClient(editId);
     if (c) { c.name=name; c.phone=phone; c.age=age; c.weight=weight; c.height=height; c.notes=notes; c.photo=tempPhoto; }
   } else {
-    data.clients.push({ id: uid(), name, phone, age, weight, height, notes, photo: tempPhoto, createdAt: todayStr(), statsHistory: [] });
+    localData.clients.push({ id: uid(), name, phone, age, weight, height, notes, photo: tempPhoto, createdAt: todayStr(), statsHistory: [] });
   }
-  saveData(data); closeModal(); renderCurrentView();
+  saveLocal(); closeModal(); renderCurrentView();
   if (editId) showClientDetail(editId);
 }
 
-function saveSession() {
+// ‚îÄ‚îÄ‚îÄ Save Session (Firestore) ‚îÄ‚îÄ‚îÄ
+async function saveSession() {
   const clientId = document.getElementById('fSessionClient').value;
   const date = document.getElementById('fSessionDate').value;
   const time = document.getElementById('fSessionTime').value;
@@ -1113,20 +1861,45 @@ function saveSession() {
   const notes = document.getElementById('fSessionNotes').value.trim();
   if (!clientId || !date || !time) return;
 
-  data.sessions.push({ id: uid(), clientId, date, time, price, notes });
-  saveData(data); closeModal();
+  const client = getClient(clientId);
 
-  const sd = new Date(date+'T00:00:00');
-  const sdi = sd.getDay()===0?6:sd.getDay()-1;
-  const today = new Date();
-  const tdi = getTodayDayIndex();
-  const tMon = new Date(today); tMon.setDate(today.getDate()-tdi); tMon.setHours(0,0,0,0);
-  const sMon = new Date(sd); sMon.setDate(sd.getDate()-sdi); sMon.setHours(0,0,0,0);
-  weekOffset = Math.round((sMon-tMon)/(7*86400000));
-  selectedScheduleDay = sdi;
-  renderCurrentView();
+  try {
+    await db.collection('sessions').add({
+      date,
+      time,
+      clientName: client ? client.name : 'Unknown',
+      clientPhone: client ? (client.phone || '') : '',
+      clientId,
+      price,
+      notes,
+      source: 'admin',
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+
+    // Remove from availability if that time slot exists
+    await db.collection('availability').doc(date).set({
+      slots: firebase.firestore.FieldValue.arrayRemove(time)
+    }, { merge: true });
+
+    closeModal();
+
+    // Navigate to the session's day
+    const sd = new Date(date+'T00:00:00');
+    const sdi = sd.getDay()===0?6:sd.getDay()-1;
+    const today = new Date();
+    const tdi = getTodayDayIndex();
+    const tMon = new Date(today); tMon.setDate(today.getDate()-tdi); tMon.setHours(0,0,0,0);
+    const sMon = new Date(sd); sMon.setDate(sd.getDate()-sdi); sMon.setHours(0,0,0,0);
+    aWeekOffset = Math.round((sMon-tMon)/(7*86400000));
+    aSelectedDay = sdi;
+    renderCurrentView();
+  } catch(e) {
+    console.error('Error creating session:', e);
+    alert('Error creating session. Try again.');
+  }
 }
 
+// ‚îÄ‚îÄ‚îÄ Save Stats (localStorage) ‚îÄ‚îÄ‚îÄ
 function saveStats(clientId) {
   const c = getClient(clientId);
   if (!c) return;
@@ -1134,19 +1907,25 @@ function saveStats(clientId) {
   STAT_KEYS.forEach(k => { entry[k] = parseInt(document.getElementById('fs_'+k).value); });
   if (!c.statsHistory) c.statsHistory = [];
   c.statsHistory.push(entry);
-  saveData(data); closeModal(); showClientDetail(clientId);
+  saveLocal(); closeModal(); showClientDetail(clientId);
 }
 
-function toggleHistory() {
-  document.getElementById('histBody').classList.toggle('open');
-  document.getElementById('histIcon').classList.toggle('open');
+// ‚îÄ‚îÄ‚îÄ Delete Session (Firestore) ‚îÄ‚îÄ‚îÄ
+async function deleteSession(id, date, time, source) {
+  try {
+    await db.collection('sessions').doc(id).delete();
+    // Restore availability if it was a client booking
+    if (source === 'booking') {
+      await db.collection('availability').doc(date).set({
+        slots: firebase.firestore.FieldValue.arrayUnion(time)
+      }, { merge: true });
+    }
+  } catch(e) {
+    console.error('Error deleting session:', e);
+  }
 }
 
-function deleteSession(id) {
-  data.sessions = data.sessions.filter(s => s.id !== id);
-  saveData(data); renderCurrentView();
-}
-
+// ‚îÄ‚îÄ‚îÄ Delete Client (localStorage) ‚îÄ‚îÄ‚îÄ
 function confirmDeleteClient(id) {
   const c = getClient(id);
   if (!c) return;
@@ -1158,14 +1937,65 @@ function confirmDeleteClient(id) {
 }
 
 function deleteClient(id) {
-  data.clients = data.clients.filter(c => c.id !== id);
-  data.sessions = data.sessions.filter(s => s.clientId !== id);
-  saveData(data); closeModal(); switchView('clients');
+  localData.clients = localData.clients.filter(c => c.id !== id);
+  saveLocal(); closeModal(); switchView('clients');
 }
 
-// ‚îÄ‚îÄ‚îÄ Init ‚îÄ‚îÄ‚îÄ
-document.getElementById('topDate').textContent = new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
-renderHome();
+// ‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê
+// MIGRATION (old localStorage sessions ‚Üí Firestore)
+// ‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê
+async function migrateOldSessions() {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (!raw) return;
+  const d = JSON.parse(raw);
+  if (!d.sessions || !d.sessions.length) return;
+
+  console.log('Migrating', d.sessions.length, 'sessions to Firestore...');
+  const batch = db.batch();
+
+  d.sessions.forEach(s => {
+    const client = d.clients?.find(c => c.id === s.clientId);
+    const ref = db.collection('sessions').doc();
+    batch.set(ref, {
+      date: s.date,
+      time: s.time,
+      clientName: client ? client.name : 'Unknown',
+      clientPhone: client ? (client.phone || '') : '',
+      clientId: s.clientId || '',
+      price: s.price || 20,
+      notes: s.notes || '',
+      source: 'admin',
+      createdAt: new Date()
+    });
+  });
+
+  try {
+    await batch.commit();
+    // Remove sessions from localStorage (keep clients)
+    d.sessions = [];
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(d));
+    localData = loadLocal();
+    console.log('Migration complete');
+  } catch(e) {
+    console.error('Migration error:', e);
+  }
+}
+
+// ‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê
+// INIT
+// ‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê
+(async function init() {
+  // Check if user was previously authenticated in this tab
+  if (sessionStorage.getItem('prle_admin')) {
+    const hasPin = await loadPin();
+    if (hasPin) {
+      showAdminView();
+      return;
+    }
+  }
+  showBookingView();
+})();
 </script>
+
 </body>
 </html>
