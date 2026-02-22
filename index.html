@@ -237,8 +237,8 @@
 firebase.initializeApp({apiKey:"AIzaSyCqQb62v7xeTh2zDRkj4VU8XDK0ZUAn0So",authDomain:"prle-4ccce.firebaseapp.com",projectId:"prle-4ccce",storageBucket:"prle-4ccce.firebasestorage.app",messagingSenderId:"154412359220",appId:"1:154412359220:web:cd9118bdeb75a7dcc2f461"});
 const db=firebase.firestore();
 emailjs.init('OtCjpsPcUAQ4P5UJj');
-function sendBookingEmail(clientName,date,time,notes){
-  emailjs.send('service_zctcl0x','template_4ym8idl',{to_email:'petarmatijevic02@gmail.com',client_name:clientName,date:formatDateLong(date),time:time,notes:notes||'No notes'}).then(()=>console.log('Email sent')).catch(e=>console.error('Email error:',e));
+function sendBookingEmail(clientName,date,time,notes,photo){
+  emailjs.send('service_zctcl0x','template_4ym8idl',{to_email:'petarmatijevic02@gmail.com',client_name:clientName,date:formatDateLong(date),time:time,notes:notes||'No notes',photo:photo||''}).then(()=>console.log('Email sent')).catch(e=>console.error('Email error:',e));
 }
 
 const STAT_KEYS=['footwork','speed','strength','power','endurance','heart'];
@@ -400,7 +400,7 @@ async function cConfirmBooking(date,time){
   try{
     await db.runTransaction(async t=>{const ref=db.collection('availability').doc(date),doc=await t.get(ref);const slots=doc.exists?(doc.data().slots||[]):[];if(!slots.includes(time))throw new Error('TAKEN');t.update(ref,{slots:slots.filter(s=>s!==time)});t.set(db.collection('sessions').doc(),{date,time,clientName:cClient.name,clientPhone:cClient.phone||'',clientId:cClient.id,price:20,notes,source:'booking',createdAt:firebase.firestore.FieldValue.serverTimestamp()});});
     closeModal();document.getElementById('cSlots').style.display='none';document.getElementById('cConfirmation').style.display='';document.getElementById('cConfirmDetails').textContent=`${formatDateLong(date)} at ${time}`;
-    sendBookingEmail(cClient.name,date,time,notes);
+    sendBookingEmail(cClient.name,date,time,notes,cClient.photo);
   }catch(e){err.textContent=e.message==='TAKEN'?'This slot was just taken! Pick another.':'Error booking. Try again.';btn.textContent='Book Now';btn.disabled=false;}
 }
 function cBackToSlots(){document.getElementById('cSlots').style.display='';document.getElementById('cConfirmation').style.display='none';cRenderWeek();}
