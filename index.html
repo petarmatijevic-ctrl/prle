@@ -46,18 +46,9 @@
     z-index: 100;
   }
 
-  .logo {
-    font-size: 1.5rem;
-    font-weight: 800;
-    letter-spacing: -0.5px;
-  }
-
+  .logo { font-size: 1.5rem; font-weight: 800; letter-spacing: -0.5px; }
   .logo span { color: var(--red); }
-
-  .topbar-sub {
-    font-size: 0.75rem;
-    color: var(--text-dim);
-  }
+  .topbar-sub { font-size: 0.75rem; color: var(--text-dim); }
 
   /* ‚îÄ‚îÄ‚îÄ Main Content ‚îÄ‚îÄ‚îÄ */
   main {
@@ -71,7 +62,6 @@
   .view { display: none; }
   .view.active { display: block; }
 
-  /* ‚îÄ‚îÄ‚îÄ Section Headers ‚îÄ‚îÄ‚îÄ */
   .section-header {
     display: flex;
     align-items: center;
@@ -79,10 +69,7 @@
     margin: 1rem 0 0.7rem;
   }
 
-  .section-title {
-    font-size: 1.1rem;
-    font-weight: 700;
-  }
+  .section-title { font-size: 1.1rem; font-weight: 700; }
 
   /* ‚îÄ‚îÄ‚îÄ Cards ‚îÄ‚îÄ‚îÄ */
   .card {
@@ -105,23 +92,9 @@
     gap: 0.8rem;
   }
 
-  .card-name {
-    font-weight: 600;
-    font-size: 1rem;
-  }
-
-  .card-sub {
-    font-size: 0.8rem;
-    color: var(--text-dim);
-    margin-top: 0.15rem;
-  }
-
-  .card-time {
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: var(--gold);
-    white-space: nowrap;
-  }
+  .card-name { font-weight: 600; font-size: 1rem; }
+  .card-sub { font-size: 0.8rem; color: var(--text-dim); margin-top: 0.15rem; }
+  .card-time { font-size: 0.85rem; font-weight: 600; color: var(--gold); white-space: nowrap; }
 
   .card-badge {
     display: inline-block;
@@ -136,23 +109,10 @@
   .badge-upcoming { background: var(--gold-dim); color: var(--gold); }
 
   /* ‚îÄ‚îÄ‚îÄ Today View ‚îÄ‚îÄ‚îÄ */
-  .today-date {
-    font-size: 0.85rem;
-    color: var(--text-dim);
-    margin-bottom: 0.3rem;
-  }
+  .today-date { font-size: 0.85rem; color: var(--text-dim); margin-bottom: 0.3rem; }
+  .today-greeting { font-size: 1.4rem; font-weight: 700; margin-bottom: 1rem; }
 
-  .today-greeting {
-    font-size: 1.4rem;
-    font-weight: 700;
-    margin-bottom: 1rem;
-  }
-
-  .stats-row {
-    display: flex;
-    gap: 0.6rem;
-    margin-bottom: 1.2rem;
-  }
+  .stats-row { display: flex; gap: 0.6rem; margin-bottom: 1.2rem; }
 
   .stat-card {
     flex: 1;
@@ -163,11 +123,7 @@
     text-align: center;
   }
 
-  .stat-num {
-    font-size: 1.6rem;
-    font-weight: 800;
-  }
-
+  .stat-num { font-size: 1.6rem; font-weight: 800; }
   .stat-num.red { color: var(--red); }
   .stat-num.green { color: var(--green); }
   .stat-num.gold { color: var(--gold); }
@@ -180,17 +136,8 @@
     letter-spacing: 0.5px;
   }
 
-  .empty-state {
-    text-align: center;
-    padding: 2.5rem 1rem;
-    color: var(--text-dim);
-  }
-
-  .empty-state-icon {
-    font-size: 2.5rem;
-    margin-bottom: 0.5rem;
-    opacity: 0.3;
-  }
+  .empty-state { text-align: center; padding: 2.5rem 1rem; color: var(--text-dim); }
+  .empty-state-icon { font-size: 2.5rem; margin-bottom: 0.5rem; opacity: 0.3; }
 
   /* ‚îÄ‚îÄ‚îÄ Schedule View ‚îÄ‚îÄ‚îÄ */
   .week-nav {
@@ -200,15 +147,8 @@
     margin-bottom: 0.8rem;
   }
 
-  .week-nav-label {
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: var(--text-dim);
-  }
-
-  .week-nav-label .current-week {
-    color: var(--gold);
-  }
+  .week-nav-label { font-size: 0.85rem; font-weight: 600; color: var(--text-dim); }
+  .week-nav-label .current-week { color: var(--gold); }
 
   .week-nav-btn {
     background: var(--card);
@@ -250,19 +190,9 @@
     transition: all 0.15s;
   }
 
-  .day-tab.active {
-    background: var(--red);
-    color: white;
-    border-color: var(--red);
-  }
-
+  .day-tab.active { background: var(--red); color: white; border-color: var(--red); }
   .day-tab .day-name { display: block; }
-  .day-tab .day-num {
-    display: block;
-    font-size: 1rem;
-    font-weight: 800;
-    margin-top: 0.1rem;
-  }
+  .day-tab .day-num { display: block; font-size: 1rem; font-weight: 800; margin-top: 0.1rem; }
 
   /* ‚îÄ‚îÄ‚îÄ Clients View ‚îÄ‚îÄ‚îÄ */
   .search-box {
@@ -296,33 +226,82 @@
   }
 
   .client-info { flex: 1; min-width: 0; }
+  .client-phone { font-size: 0.78rem; color: var(--text-dim); }
 
-  .client-phone {
+  /* ‚îÄ‚îÄ‚îÄ Stats Bars ‚îÄ‚îÄ‚îÄ */
+  .stat-bars { margin-bottom: 1rem; }
+
+  .stat-bar-item {
+    margin-bottom: 0.7rem;
+  }
+
+  .stat-bar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.25rem;
+  }
+
+  .stat-bar-name {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-dim);
+  }
+
+  .stat-bar-value {
+    font-size: 0.85rem;
+    font-weight: 700;
+  }
+
+  .stat-bar-change {
+    font-size: 0.7rem;
+    font-weight: 600;
+    margin-left: 0.4rem;
+  }
+
+  .stat-bar-change.up { color: var(--green); }
+  .stat-bar-change.down { color: var(--red); }
+  .stat-bar-change.same { color: var(--text-faint); }
+
+  .stat-bar-track {
+    width: 100%;
+    height: 8px;
+    background: var(--bg);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .stat-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.4s ease;
+  }
+
+  .stat-bar-fill.low { background: var(--red); }
+  .stat-bar-fill.mid { background: var(--gold); }
+  .stat-bar-fill.high { background: var(--green); }
+
+  .stat-history-entry {
     font-size: 0.78rem;
     color: var(--text-dim);
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border);
   }
 
-  .client-sessions {
-    font-size: 0.7rem;
-    color: var(--text-faint);
+  .stat-history-entry:last-child { border-bottom: none; }
+
+  .stat-history-date {
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 0.2rem;
   }
 
-  /* ‚îÄ‚îÄ‚îÄ Log View ‚îÄ‚îÄ‚îÄ */
-  .log-entry {
-    border-left: 3px solid var(--red);
-    padding-left: 0.8rem;
-  }
-
-  .log-date {
-    font-size: 0.75rem;
-    color: var(--text-dim);
-  }
-
-  .log-notes {
-    font-size: 0.85rem;
-    color: var(--text-dim);
-    margin-top: 0.25rem;
-    font-style: italic;
+  .stat-history-values {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem 0.8rem;
   }
 
   /* ‚îÄ‚îÄ‚îÄ Buttons ‚îÄ‚îÄ‚îÄ */
@@ -341,43 +320,12 @@
   }
 
   .btn:active { transform: scale(0.96); }
-
-  .btn-primary {
-    background: var(--red);
-    color: white;
-  }
-
-  .btn-secondary {
-    background: var(--card);
-    border: 1px solid var(--border);
-    color: var(--text);
-  }
-
-  .btn-small {
-    padding: 0.35rem 0.7rem;
-    font-size: 0.75rem;
-    border-radius: 8px;
-  }
-
-  .btn-icon {
-    width: 34px;
-    height: 34px;
-    padding: 0;
-    border-radius: 50%;
-    font-size: 1.2rem;
-  }
-
-  .btn-danger {
-    background: var(--red-dim);
-    color: var(--red);
-    border: 1px solid transparent;
-  }
-
-  .btn-success {
-    background: var(--green-dim);
-    color: var(--green);
-    border: 1px solid transparent;
-  }
+  .btn-primary { background: var(--red); color: white; }
+  .btn-secondary { background: var(--card); border: 1px solid var(--border); color: var(--text); }
+  .btn-small { padding: 0.35rem 0.7rem; font-size: 0.75rem; border-radius: 8px; }
+  .btn-icon { width: 34px; height: 34px; padding: 0; border-radius: 50%; font-size: 1.2rem; }
+  .btn-danger { background: var(--red-dim); color: var(--red); border: 1px solid transparent; }
+  .btn-success { background: var(--green-dim); color: var(--green); border: 1px solid transparent; }
 
   /* ‚îÄ‚îÄ‚îÄ Modal ‚îÄ‚îÄ‚îÄ */
   .modal-overlay {
@@ -391,9 +339,7 @@
     backdrop-filter: blur(4px);
   }
 
-  .modal-overlay.open {
-    display: flex;
-  }
+  .modal-overlay.open { display: flex; }
 
   .modal {
     background: var(--card);
@@ -419,10 +365,7 @@
     margin-bottom: 1.2rem;
   }
 
-  .modal-title {
-    font-size: 1.1rem;
-    font-weight: 700;
-  }
+  .modal-title { font-size: 1.1rem; font-weight: 700; }
 
   .modal-close {
     background: none;
@@ -435,9 +378,7 @@
   }
 
   /* ‚îÄ‚îÄ‚îÄ Form ‚îÄ‚îÄ‚îÄ */
-  .form-group {
-    margin-bottom: 1rem;
-  }
+  .form-group { margin-bottom: 1rem; }
 
   .form-label {
     display: block;
@@ -462,10 +403,7 @@
     transition: border-color 0.2s;
   }
 
-  .form-input:focus, .form-select:focus, .form-textarea:focus {
-    border-color: var(--red);
-  }
-
+  .form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--red); }
   .form-textarea { resize: vertical; min-height: 70px; }
 
   .form-select {
@@ -476,20 +414,54 @@
     padding-right: 2.2rem;
   }
 
-  .form-row {
-    display: flex;
-    gap: 0.8rem;
-  }
-
+  .form-row { display: flex; gap: 0.8rem; }
   .form-row .form-group { flex: 1; }
+  .form-actions { display: flex; gap: 0.6rem; margin-top: 1.2rem; }
+  .form-actions .btn { flex: 1; padding: 0.75rem; }
 
-  .form-actions {
+  .slider-group { margin-bottom: 0.8rem; }
+
+  .slider-header {
     display: flex;
-    gap: 0.6rem;
-    margin-top: 1.2rem;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.2rem;
   }
 
-  .form-actions .btn { flex: 1; padding: 0.75rem; }
+  .slider-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-dim);
+  }
+
+  .slider-value {
+    font-size: 0.85rem;
+    font-weight: 700;
+    min-width: 2rem;
+    text-align: right;
+  }
+
+  input[type="range"] {
+    width: 100%;
+    height: 8px;
+    -webkit-appearance: none;
+    appearance: none;
+    background: var(--bg);
+    border-radius: 4px;
+    outline: none;
+  }
+
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--red);
+    cursor: pointer;
+    border: 2px solid var(--card);
+  }
 
   /* ‚îÄ‚îÄ‚îÄ Bottom Nav ‚îÄ‚îÄ‚îÄ */
   .bottom-nav {
@@ -518,12 +490,7 @@
 
   .nav-item.active { color: var(--red); }
 
-  .nav-icon {
-    display: block;
-    margin: 0 auto 0.15rem;
-    width: 24px;
-    height: 24px;
-  }
+  .nav-icon { display: block; margin: 0 auto 0.15rem; width: 24px; height: 24px; }
 
   .nav-label {
     font-size: 0.65rem;
@@ -533,12 +500,7 @@
   }
 
   /* ‚îÄ‚îÄ‚îÄ Detail View ‚îÄ‚îÄ‚îÄ */
-  .detail-header {
-    display: flex;
-    align-items: center;
-    gap: 0.8rem;
-    margin-bottom: 1rem;
-  }
+  .detail-header { display: flex; align-items: center; gap: 0.8rem; margin-bottom: 1rem; }
 
   .detail-back {
     background: none;
@@ -564,12 +526,7 @@
 
   .detail-name { font-size: 1.2rem; font-weight: 700; }
   .detail-phone { font-size: 0.85rem; color: var(--text-dim); }
-
-  .detail-actions {
-    display: flex;
-    gap: 0.5rem;
-    margin-bottom: 1.2rem;
-  }
+  .detail-actions { display: flex; gap: 0.5rem; margin-bottom: 1.2rem; }
 
   .detail-notes {
     background: var(--card);
@@ -587,28 +544,15 @@
     margin-bottom: 0.3rem;
   }
 
-  .detail-notes-text {
-    font-size: 0.9rem;
-    color: var(--text);
-  }
+  .detail-notes-text { font-size: 0.9rem; color: var(--text); }
 
-  /* ‚îÄ‚îÄ‚îÄ Confirm Dialog ‚îÄ‚îÄ‚îÄ */
-  .confirm-dialog {
-    text-align: center;
-    padding: 0.5rem 0;
-  }
+  .confirm-dialog { text-align: center; padding: 0.5rem 0; }
+  .confirm-dialog p { margin-bottom: 1.2rem; color: var(--text-dim); }
 
-  .confirm-dialog p {
-    margin-bottom: 1.2rem;
-    color: var(--text-dim);
-  }
-
-  /* ‚îÄ‚îÄ‚îÄ Scrollbar ‚îÄ‚îÄ‚îÄ */
   ::-webkit-scrollbar { width: 4px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
 
-  /* ‚îÄ‚îÄ‚îÄ Desktop ‚îÄ‚îÄ‚îÄ */
   @media (min-width: 768px) {
     main { padding-bottom: 5rem; }
     .modal { border-radius: 20px; align-self: center; margin-bottom: 0; }
@@ -617,7 +561,6 @@
 </head>
 <body>
 
-<!-- Top Bar -->
 <div class="topbar">
   <div>
     <div class="logo"><span>P</span>rle</div>
@@ -628,14 +571,11 @@
   </div>
 </div>
 
-<!-- Main Content -->
 <main>
-
   <!-- TODAY VIEW -->
   <div class="view active" id="viewToday">
     <p class="today-date" id="todayDate"></p>
     <h2 class="today-greeting" id="todayGreeting"></h2>
-
     <div class="stats-row">
       <div class="stat-card">
         <div class="stat-num red" id="statToday">0</div>
@@ -650,7 +590,6 @@
         <div class="stat-label">Clients</div>
       </div>
     </div>
-
     <div class="section-header">
       <div class="section-title">Today's Sessions</div>
     </div>
@@ -663,7 +602,6 @@
       <div class="section-title">Schedule</div>
       <button class="btn btn-primary btn-small" onclick="openModal('session')">+ Session</button>
     </div>
-
     <div class="week-nav">
       <button class="week-nav-btn" onclick="changeWeek(-1)">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
@@ -673,7 +611,6 @@
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
       </button>
     </div>
-
     <div class="day-tabs" id="dayTabs"></div>
     <div id="scheduleSessions"></div>
   </div>
@@ -692,16 +629,6 @@
   <div class="view" id="viewClientDetail">
     <div id="clientDetailContent"></div>
   </div>
-
-  <!-- LOG VIEW -->
-  <div class="view" id="viewLog">
-    <div class="section-header">
-      <div class="section-title">Session Log</div>
-      <button class="btn btn-primary btn-small" onclick="openModal('log')">+ Log</button>
-    </div>
-    <div id="logList"></div>
-  </div>
-
 </main>
 
 <!-- Bottom Navigation -->
@@ -718,13 +645,8 @@
     <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
     <span class="nav-label">Clients</span>
   </button>
-  <button class="nav-item" onclick="switchView('log')" data-view="log">
-    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg>
-    <span class="nav-label">Log</span>
-  </button>
 </nav>
 
-<!-- Modal Overlay -->
 <div class="modal-overlay" id="modalOverlay" onclick="closeModalOutside(event)">
   <div class="modal" id="modalContent"></div>
 </div>
@@ -732,11 +654,19 @@
 <script>
 // ‚îÄ‚îÄ‚îÄ Data Layer ‚îÄ‚îÄ‚îÄ
 const STORAGE_KEY = 'prle_data';
+const STAT_KEYS = ['footwork', 'speed', 'strength', 'power', 'durability', 'heart'];
+const STAT_LABELS = { footwork: 'Footwork', speed: 'Speed', strength: 'Strength', power: 'Power', durability: 'Durability', heart: 'Heart' };
 
 function loadData() {
   const raw = localStorage.getItem(STORAGE_KEY);
-  if (raw) return JSON.parse(raw);
-  return { clients: [], sessions: [], logs: [] };
+  if (raw) {
+    const d = JSON.parse(raw);
+    // Migrate: ensure clients have statsHistory
+    d.clients.forEach(c => { if (!c.statsHistory) c.statsHistory = []; });
+    if (!d.sessions) d.sessions = [];
+    return d;
+  }
+  return { clients: [], sessions: [] };
 }
 
 function saveData(data) {
@@ -750,7 +680,6 @@ const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 const DAYS_FULL = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
 function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
-
 function getClient(id) { return data.clients.find(c => c.id === id); }
 
 function getInitials(name) {
@@ -764,7 +693,7 @@ function formatTime(t) {
 
 function getTodayDayIndex() {
   const d = new Date().getDay();
-  return d === 0 ? 6 : d - 1; // Mon=0, Sun=6
+  return d === 0 ? 6 : d - 1;
 }
 
 function getWeekDates(offset = 0) {
@@ -779,15 +708,17 @@ function getWeekDates(offset = 0) {
   return dates;
 }
 
-function dateStr(d) {
-  return d.toISOString().split('T')[0];
-}
-
+function dateStr(d) { return d.toISOString().split('T')[0]; }
 function todayStr() { return dateStr(new Date()); }
 
 function formatDate(str) {
   const d = new Date(str + 'T00:00:00');
   return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+}
+
+function formatDateShort(str) {
+  const d = new Date(str + 'T00:00:00');
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
 function getSessionsForDate(date) {
@@ -796,19 +727,34 @@ function getSessionsForDate(date) {
     .sort((a, b) => a.time.localeCompare(b.time));
 }
 
-function getLogsForClient(clientId) {
-  return data.logs
-    .filter(l => l.clientId === clientId)
-    .sort((a, b) => b.date.localeCompare(a.date));
-}
-
-function getSessionCountForClient(clientId) {
-  return data.logs.filter(l => l.clientId === clientId).length;
-}
-
 function getWeekSessionCount() {
   const weekDates = getWeekDates(0).map(d => dateStr(d));
   return data.sessions.filter(s => weekDates.includes(s.date)).length;
+}
+
+function getLatestStats(client) {
+  if (!client.statsHistory || client.statsHistory.length === 0) return null;
+  return client.statsHistory[client.statsHistory.length - 1];
+}
+
+function getPreviousStats(client) {
+  if (!client.statsHistory || client.statsHistory.length < 2) return null;
+  return client.statsHistory[client.statsHistory.length - 2];
+}
+
+function getStatBarClass(val) {
+  if (val < 35) return 'low';
+  if (val < 70) return 'mid';
+  return 'high';
+}
+
+function getChangeText(current, previous) {
+  if (previous === null || previous === undefined) return '';
+  const diff = current - previous;
+  if (diff === 0) return '<span class="stat-bar-change same">--</span>';
+  const pct = previous > 0 ? Math.round((diff / previous) * 100) : diff > 0 ? 100 : -100;
+  if (diff > 0) return `<span class="stat-bar-change up">+${pct}%</span>`;
+  return `<span class="stat-bar-change down">${pct}%</span>`;
 }
 
 // ‚îÄ‚îÄ‚îÄ Navigation ‚îÄ‚îÄ‚îÄ
@@ -821,7 +767,8 @@ function switchView(view) {
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('view' + view.charAt(0).toUpperCase() + view.slice(1)).classList.add('active');
-  document.querySelector(`[data-view="${view}"]`).classList.add('active');
+  const navBtn = document.querySelector(`[data-view="${view}"]`);
+  if (navBtn) navBtn.classList.add('active');
   renderCurrentView();
 }
 
@@ -830,15 +777,13 @@ function renderCurrentView() {
     case 'today': renderToday(); break;
     case 'schedule': renderSchedule(); break;
     case 'clients': renderClients(); break;
-    case 'log': renderLog(); break;
   }
 }
 
 // ‚îÄ‚îÄ‚îÄ Today View ‚îÄ‚îÄ‚îÄ
 function renderToday() {
   const now = new Date();
-  const opts = { weekday: 'long', month: 'long', day: 'numeric' };
-  document.getElementById('todayDate').textContent = now.toLocaleDateString('en-US', opts);
+  document.getElementById('todayDate').textContent = now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
 
   const hour = now.getHours();
   let greeting = 'Good morning, Luka';
@@ -847,7 +792,6 @@ function renderToday() {
   document.getElementById('todayGreeting').textContent = greeting;
 
   const todaySessions = getSessionsForDate(todayStr());
-  const todayLogs = data.logs.filter(l => l.date === todayStr());
 
   document.getElementById('statToday').textContent = todaySessions.length;
   document.getElementById('statWeek').textContent = getWeekSessionCount();
@@ -855,27 +799,19 @@ function renderToday() {
 
   const container = document.getElementById('todaySessions');
   if (todaySessions.length === 0) {
-    container.innerHTML = `
-      <div class="empty-state">
-        <div class="empty-state-icon">---</div>
-        <p>No sessions scheduled for today</p>
-      </div>`;
+    container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">---</div><p>No sessions scheduled for today</p></div>';
     return;
   }
 
   container.innerHTML = todaySessions.map(s => {
     const client = getClient(s.clientId);
     if (!client) return '';
-    const logged = todayLogs.some(l => l.clientId === s.clientId);
     return `
-      <div class="card" onclick="openLogForSession('${s.clientId}')">
+      <div class="card" onclick="showClientDetail('${s.clientId}')">
         <div class="card-row">
           <div>
             <div class="card-name">${client.name}</div>
-            <div class="card-sub">${s.duration} min</div>
-            ${logged
-              ? '<span class="card-badge badge-done">Logged</span>'
-              : '<span class="card-badge badge-upcoming">Upcoming</span>'}
+            ${s.notes ? `<div class="card-sub">${s.notes}</div>` : ''}
           </div>
           <div class="card-time">${formatTime(s.time)}</div>
         </div>
@@ -888,7 +824,6 @@ function renderSchedule() {
   const weekDates = getWeekDates(weekOffset);
   const todayIdx = weekOffset === 0 ? getTodayDayIndex() : -1;
 
-  // Week label
   const weekStart = weekDates[0];
   const weekEnd = weekDates[6];
   const labelStart = weekStart.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
@@ -900,13 +835,10 @@ function renderSchedule() {
     weekLabel.textContent = `${labelStart} - ${labelEnd}`;
   }
 
-  const tabsEl = document.getElementById('dayTabs');
-  tabsEl.innerHTML = DAYS.map((d, i) => {
+  document.getElementById('dayTabs').innerHTML = DAYS.map((d, i) => {
     const date = weekDates[i];
-    const isToday = i === todayIdx;
-    const isActive = i === selectedScheduleDay;
     return `
-      <div class="day-tab ${isActive ? 'active' : ''}" style="${isToday ? 'border-color:var(--gold)' : ''}" onclick="selectDay(${i})">
+      <div class="day-tab ${i === selectedScheduleDay ? 'active' : ''}" style="${i === todayIdx ? 'border-color:var(--gold)' : ''}" onclick="selectDay(${i})">
         <span class="day-name">${d}</span>
         <span class="day-num">${date.getDate()}</span>
       </div>`;
@@ -917,11 +849,7 @@ function renderSchedule() {
   const container = document.getElementById('scheduleSessions');
 
   if (sessions.length === 0) {
-    container.innerHTML = `
-      <div class="empty-state">
-        <div class="empty-state-icon">---</div>
-        <p>No sessions on ${DAYS_FULL[selectedScheduleDay]}</p>
-      </div>`;
+    container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">---</div><p>No sessions on ${DAYS_FULL[selectedScheduleDay]}</p></div>`;
     return;
   }
 
@@ -944,10 +872,7 @@ function renderSchedule() {
   }).join('');
 }
 
-function selectDay(i) {
-  selectedScheduleDay = i;
-  renderSchedule();
-}
+function selectDay(i) { selectedScheduleDay = i; renderSchedule(); }
 
 function changeWeek(dir) {
   weekOffset += dir;
@@ -964,16 +889,13 @@ function renderClients() {
 
   const container = document.getElementById('clientList');
   if (filtered.length === 0) {
-    container.innerHTML = `
-      <div class="empty-state">
-        <div class="empty-state-icon">---</div>
-        <p>${data.clients.length === 0 ? 'Add your first client' : 'No matches'}</p>
-      </div>`;
+    container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">---</div><p>${data.clients.length === 0 ? 'Add your first client' : 'No matches'}</p></div>`;
     return;
   }
 
   container.innerHTML = filtered.map(c => {
-    const count = getSessionCountForClient(c.id);
+    const latest = getLatestStats(c);
+    const avg = latest ? Math.round(STAT_KEYS.reduce((sum, k) => sum + (latest[k] || 0), 0) / STAT_KEYS.length) : '--';
     return `
       <div class="card" onclick="showClientDetail('${c.id}')">
         <div class="card-row">
@@ -982,9 +904,9 @@ function renderClients() {
             <div class="card-name">${c.name}</div>
             <div class="client-phone">${c.phone || 'No phone'}</div>
           </div>
-          <div class="client-sessions" style="text-align:right">
-            <div style="font-size:1.1rem;font-weight:700;color:var(--gold)">${count}</div>
-            <div style="font-size:0.65rem;color:var(--text-faint)">sessions</div>
+          <div style="text-align:right">
+            <div style="font-size:1.1rem;font-weight:700;color:${latest ? 'var(--gold)' : 'var(--text-faint)'}">${avg}</div>
+            <div style="font-size:0.65rem;color:var(--text-faint)">avg</div>
           </div>
         </div>
       </div>`;
@@ -999,15 +921,70 @@ function showClientDetail(clientId) {
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.getElementById('viewClientDetail').classList.add('active');
 
-  const logs = getLogsForClient(clientId);
   const sessions = data.sessions.filter(s => s.clientId === clientId);
-
   const upcomingSessions = sessions
     .filter(s => s.date >= todayStr())
     .sort((a, b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time));
   const scheduleInfo = upcomingSessions.length > 0
-    ? upcomingSessions.map(s => `${formatDate(s.date)} ${formatTime(s.time)}`).join(', ')
+    ? upcomingSessions.slice(0, 5).map(s => `${formatDate(s.date)} ${formatTime(s.time)}`).join(', ')
     : 'No upcoming sessions';
+
+  const latest = getLatestStats(client);
+  const previous = getPreviousStats(client);
+
+  let statsHTML = '';
+  if (latest) {
+    statsHTML = `
+      <div class="section-header">
+        <div class="section-title">Stats</div>
+        <button class="btn btn-primary btn-small" onclick="openModal('stats', '${client.id}')">Update</button>
+      </div>
+      ${previous ? `<div style="font-size:0.72rem;color:var(--text-faint);margin-bottom:0.6rem">Last updated ${formatDateShort(latest.date)} &middot; vs ${formatDateShort(previous.date)}</div>` :
+        `<div style="font-size:0.72rem;color:var(--text-faint);margin-bottom:0.6rem">Set on ${formatDateShort(latest.date)}</div>`}
+      <div class="stat-bars">
+        ${STAT_KEYS.map(k => {
+          const val = latest[k] || 0;
+          const prev = previous ? previous[k] : null;
+          return `
+            <div class="stat-bar-item">
+              <div class="stat-bar-header">
+                <span class="stat-bar-name">${STAT_LABELS[k]}</span>
+                <span><span class="stat-bar-value">${val}</span>${getChangeText(val, prev)}</span>
+              </div>
+              <div class="stat-bar-track">
+                <div class="stat-bar-fill ${getStatBarClass(val)}" style="width:${val}%"></div>
+              </div>
+            </div>`;
+        }).join('')}
+      </div>`;
+  } else {
+    statsHTML = `
+      <div class="section-header">
+        <div class="section-title">Stats</div>
+      </div>
+      <div class="empty-state" style="padding:1.5rem">
+        <p>No stats recorded yet</p>
+        <button class="btn btn-primary btn-small" style="margin-top:0.8rem" onclick="openModal('stats', '${client.id}')">Set Initial Stats</button>
+      </div>`;
+  }
+
+  // Stats history
+  let historyHTML = '';
+  if (client.statsHistory && client.statsHistory.length > 1) {
+    historyHTML = `
+      <div class="section-header">
+        <div class="section-title">Progress History</div>
+      </div>
+      <div class="detail-notes">
+        ${[...client.statsHistory].reverse().map(entry => `
+          <div class="stat-history-entry">
+            <div class="stat-history-date">${formatDateShort(entry.date)}</div>
+            <div class="stat-history-values">
+              ${STAT_KEYS.map(k => `<span>${STAT_LABELS[k].slice(0,3)}: <strong>${entry[k]}</strong></span>`).join('')}
+            </div>
+          </div>`).join('')}
+      </div>`;
+  }
 
   document.getElementById('clientDetailContent').innerHTML = `
     <div class="detail-header">
@@ -1027,70 +1004,16 @@ function showClientDetail(clientId) {
       ${client.phone ? `<a href="tel:${client.phone}" class="btn btn-success btn-small" style="text-decoration:none">Call</a>` : ''}
     </div>
 
-    ${client.notes ? `
-    <div class="detail-notes">
-      <div class="detail-notes-label">Notes</div>
-      <div class="detail-notes-text">${client.notes}</div>
-    </div>` : ''}
+    ${client.notes ? `<div class="detail-notes"><div class="detail-notes-label">Notes</div><div class="detail-notes-text">${client.notes}</div></div>` : ''}
 
     <div class="detail-notes">
-      <div class="detail-notes-label">Schedule</div>
+      <div class="detail-notes-label">Upcoming Sessions</div>
       <div class="detail-notes-text">${scheduleInfo}</div>
     </div>
 
-    <div class="section-header">
-      <div class="section-title">Session History</div>
-      <div style="font-size:0.8rem;color:var(--text-dim)">${logs.length} total</div>
-    </div>
-
-    ${logs.length === 0 ? '<div class="empty-state"><p>No sessions logged yet</p></div>' :
-      logs.map(l => `
-        <div class="card log-entry">
-          <div class="card-row">
-            <div>
-              <div class="log-date">${formatDate(l.date)}</div>
-              ${l.notes ? `<div class="log-notes">"${l.notes}"</div>` : ''}
-            </div>
-            <button class="btn btn-danger btn-icon btn-small" onclick="event.stopPropagation();deleteLog('${l.id}','${client.id}')" title="Delete">x</button>
-          </div>
-        </div>`).join('')}
+    ${statsHTML}
+    ${historyHTML}
   `;
-}
-
-// ‚îÄ‚îÄ‚îÄ Log View ‚îÄ‚îÄ‚îÄ
-function renderLog() {
-  const logs = [...data.logs].sort((a, b) => {
-    const d = b.date.localeCompare(a.date);
-    return d !== 0 ? d : b.id.localeCompare(a.id);
-  });
-
-  const container = document.getElementById('logList');
-  if (logs.length === 0) {
-    container.innerHTML = `
-      <div class="empty-state">
-        <div class="empty-state-icon">---</div>
-        <p>No sessions logged yet</p>
-      </div>`;
-    return;
-  }
-
-  let lastDate = '';
-  container.innerHTML = logs.map(l => {
-    const client = getClient(l.clientId);
-    const showDate = l.date !== lastDate;
-    lastDate = l.date;
-    return `
-      ${showDate ? `<div style="margin-top:1rem;margin-bottom:0.4rem;font-size:0.78rem;color:var(--text-dim);font-weight:600">${formatDate(l.date)}</div>` : ''}
-      <div class="card log-entry">
-        <div class="card-row">
-          <div>
-            <div class="card-name">${client ? client.name : 'Unknown'}</div>
-            ${l.notes ? `<div class="log-notes">"${l.notes}"</div>` : ''}
-          </div>
-          <button class="btn btn-danger btn-icon btn-small" onclick="event.stopPropagation();deleteLogFromList('${l.id}')" title="Delete">x</button>
-        </div>
-      </div>`;
-  }).join('');
 }
 
 // ‚îÄ‚îÄ‚îÄ Modal System ‚îÄ‚îÄ‚îÄ
@@ -1130,16 +1053,12 @@ function openModal(type, editId) {
           <div class="modal-title">New Session</div>
           <button class="modal-close" onclick="closeModal()">&times;</button>
         </div>
-        <div class="empty-state">
-          <p>Add a client first before scheduling sessions.</p>
-        </div>
+        <div class="empty-state"><p>Add a client first before scheduling sessions.</p></div>
         <div class="form-actions">
           <button class="btn btn-primary" onclick="closeModal();switchView('clients');openModal('client')">Add Client</button>
         </div>`;
     } else {
-      const clientOptions = data.clients
-        .sort((a, b) => a.name.localeCompare(b.name))
-        .map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+      const clientOptions = data.clients.sort((a, b) => a.name.localeCompare(b.name)).map(c => `<option value="${c.id}">${c.name}</option>`).join('');
       const weekDates = getWeekDates(weekOffset);
       const defaultDate = dateStr(weekDates[selectedScheduleDay]);
       content.innerHTML = `
@@ -1172,43 +1091,30 @@ function openModal(type, editId) {
     }
   }
 
-  else if (type === 'log') {
-    if (data.clients.length === 0) {
-      content.innerHTML = `
-        <div class="modal-header">
-          <div class="modal-title">Log Session</div>
-          <button class="modal-close" onclick="closeModal()">&times;</button>
-        </div>
-        <div class="empty-state"><p>Add a client first.</p></div>
-        <div class="form-actions">
-          <button class="btn btn-primary" onclick="closeModal();switchView('clients');openModal('client')">Add Client</button>
-        </div>`;
-    } else {
-      const clientOptions = data.clients
-        .sort((a, b) => a.name.localeCompare(b.name))
-        .map(c => `<option value="${c.id}">${c.name}</option>`).join('');
-      content.innerHTML = `
-        <div class="modal-header">
-          <div class="modal-title">Log Session</div>
-          <button class="modal-close" onclick="closeModal()">&times;</button>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Client</label>
-          <select class="form-select" id="fLogClient">${clientOptions}</select>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Date</label>
-          <input type="date" class="form-input" id="fLogDate" value="${todayStr()}">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Notes</label>
-          <textarea class="form-textarea" id="fLogNotes" placeholder="What did you work on? How did it go?"></textarea>
-        </div>
-        <div class="form-actions">
-          <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
-          <button class="btn btn-primary" onclick="saveLog()">Log Session</button>
-        </div>`;
-    }
+  else if (type === 'stats') {
+    const client = getClient(editId);
+    if (!client) return;
+    const latest = getLatestStats(client);
+    const vals = {};
+    STAT_KEYS.forEach(k => { vals[k] = latest ? (latest[k] || 50) : 50; });
+
+    content.innerHTML = `
+      <div class="modal-header">
+        <div class="modal-title">${latest ? 'Update' : 'Set'} Stats - ${client.name}</div>
+        <button class="modal-close" onclick="closeModal()">&times;</button>
+      </div>
+      ${STAT_KEYS.map(k => `
+        <div class="slider-group">
+          <div class="slider-header">
+            <span class="slider-label">${STAT_LABELS[k]}</span>
+            <span class="slider-value" id="sv_${k}">${vals[k]}</span>
+          </div>
+          <input type="range" min="1" max="100" value="${vals[k]}" id="fs_${k}" oninput="document.getElementById('sv_${k}').textContent=this.value">
+        </div>`).join('')}
+      <div class="form-actions">
+        <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="saveStats('${editId}')">${latest ? 'Update Stats' : 'Save Stats'}</button>
+      </div>`;
   }
 
   overlay.classList.add('open');
@@ -1216,21 +1122,8 @@ function openModal(type, editId) {
   if (firstInput) setTimeout(() => firstInput.focus(), 100);
 }
 
-function openLogForSession(clientId) {
-  openModal('log');
-  setTimeout(() => {
-    const sel = document.getElementById('fLogClient');
-    if (sel) sel.value = clientId;
-  }, 50);
-}
-
-function closeModal() {
-  document.getElementById('modalOverlay').classList.remove('open');
-}
-
-function closeModalOutside(e) {
-  if (e.target === e.currentTarget) closeModal();
-}
+function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); }
+function closeModalOutside(e) { if (e.target === e.currentTarget) closeModal(); }
 
 // ‚îÄ‚îÄ‚îÄ CRUD ‚îÄ‚îÄ‚îÄ
 function saveClient(editId) {
@@ -1243,7 +1136,7 @@ function saveClient(editId) {
     const c = getClient(editId);
     if (c) { c.name = name; c.phone = phone; c.notes = notes; }
   } else {
-    data.clients.push({ id: uid(), name, phone, notes, createdAt: todayStr() });
+    data.clients.push({ id: uid(), name, phone, notes, createdAt: todayStr(), statsHistory: [] });
   }
 
   saveData(data);
@@ -1264,7 +1157,6 @@ function saveSession() {
   saveData(data);
   closeModal();
 
-  // Navigate to the week/day of the new session
   const sessionDate = new Date(date + 'T00:00:00');
   const sessionDayIdx = sessionDate.getDay() === 0 ? 6 : sessionDate.getDay() - 1;
   const today = new Date();
@@ -1280,17 +1172,20 @@ function saveSession() {
   renderCurrentView();
 }
 
-function saveLog(presetClientId) {
-  const clientId = document.getElementById('fLogClient').value;
-  const date = document.getElementById('fLogDate').value;
-  const notes = document.getElementById('fLogNotes').value.trim();
+function saveStats(clientId) {
+  const client = getClient(clientId);
+  if (!client) return;
 
-  if (!clientId || !date) return;
+  const entry = { date: todayStr() };
+  STAT_KEYS.forEach(k => {
+    entry[k] = parseInt(document.getElementById('fs_' + k).value);
+  });
 
-  data.logs.push({ id: uid(), clientId, date, notes });
+  if (!client.statsHistory) client.statsHistory = [];
+  client.statsHistory.push(entry);
   saveData(data);
   closeModal();
-  renderCurrentView();
+  showClientDetail(clientId);
 }
 
 function deleteSession(id) {
@@ -1299,22 +1194,9 @@ function deleteSession(id) {
   renderCurrentView();
 }
 
-function deleteLog(id, clientId) {
-  data.logs = data.logs.filter(l => l.id !== id);
-  saveData(data);
-  showClientDetail(clientId);
-}
-
-function deleteLogFromList(id) {
-  data.logs = data.logs.filter(l => l.id !== id);
-  saveData(data);
-  renderLog();
-}
-
 function confirmDeleteClient(id) {
   const client = getClient(id);
   if (!client) return;
-  const overlay = document.getElementById('modalOverlay');
   const content = document.getElementById('modalContent');
   content.innerHTML = `
     <div class="modal-header">
@@ -1322,19 +1204,18 @@ function confirmDeleteClient(id) {
       <button class="modal-close" onclick="closeModal()">&times;</button>
     </div>
     <div class="confirm-dialog">
-      <p>Remove <strong>${client.name}</strong> and all their sessions and logs?</p>
+      <p>Remove <strong>${client.name}</strong> and all their sessions and stats?</p>
       <div class="form-actions">
         <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
         <button class="btn btn-danger" onclick="deleteClient('${id}')">Delete</button>
       </div>
     </div>`;
-  overlay.classList.add('open');
+  document.getElementById('modalOverlay').classList.add('open');
 }
 
 function deleteClient(id) {
   data.clients = data.clients.filter(c => c.id !== id);
   data.sessions = data.sessions.filter(s => s.clientId !== id);
-  data.logs = data.logs.filter(l => l.clientId !== id);
   saveData(data);
   closeModal();
   switchView('clients');
@@ -1349,6 +1230,5 @@ function init() {
 
 init();
 </script>
-
 </body>
 </html>
