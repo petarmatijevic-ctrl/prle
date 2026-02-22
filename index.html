@@ -1313,7 +1313,8 @@ function bOpenBooking(date, time) {
     return;
   }
 
-  const opts = bClientList.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+  const sorted = [...bClientList].sort((a,b) => a.name.localeCompare(b.name));
+  const opts = '<option value="" disabled selected>Select your name</option>' + sorted.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
   ct.innerHTML = `
     <div class="modal-header">
       <div class="modal-title">Book Session</div>
