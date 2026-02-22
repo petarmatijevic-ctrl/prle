@@ -1,0 +1,1279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Prle - Boxing Trainer</title>
+<style>
+  :root {
+    --bg: #0c0c14;
+    --card: #161625;
+    --card-hover: #1c1c30;
+    --border: #2a2a3d;
+    --red: #e63946;
+    --red-dim: #e6394620;
+    --green: #2a9d8f;
+    --green-dim: #2a9d8f20;
+    --gold: #e9c46a;
+    --gold-dim: #e9c46a15;
+    --text: #eaeaea;
+    --text-dim: #888;
+    --text-faint: #555;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* ─── Top Bar ─── */
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.2rem 0.5rem;
+    position: sticky;
+    top: 0;
+    background: var(--bg);
+    z-index: 100;
+  }
+
+  .logo {
+    font-size: 1.5rem;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+  }
+
+  .logo span { color: var(--red); }
+
+  .topbar-sub {
+    font-size: 0.75rem;
+    color: var(--text-dim);
+  }
+
+  /* ─── Main Content ─── */
+  main {
+    flex: 1;
+    padding: 0.5rem 1rem 6rem;
+    max-width: 600px;
+    width: 100%;
+    margin: 0 auto;
+  }
+
+  .view { display: none; }
+  .view.active { display: block; }
+
+  /* ─── Section Headers ─── */
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 1rem 0 0.7rem;
+  }
+
+  .section-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+  }
+
+  /* ─── Cards ─── */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 0.9rem 1rem;
+    margin-bottom: 0.6rem;
+    transition: background 0.15s;
+    cursor: pointer;
+    position: relative;
+  }
+
+  .card:hover { background: var(--card-hover); }
+
+  .card-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.8rem;
+  }
+
+  .card-name {
+    font-weight: 600;
+    font-size: 1rem;
+  }
+
+  .card-sub {
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    margin-top: 0.15rem;
+  }
+
+  .card-time {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--gold);
+    white-space: nowrap;
+  }
+
+  .card-badge {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 0.15rem 0.5rem;
+    border-radius: 20px;
+    margin-top: 0.3rem;
+  }
+
+  .badge-done { background: var(--green-dim); color: var(--green); }
+  .badge-upcoming { background: var(--gold-dim); color: var(--gold); }
+
+  /* ─── Today View ─── */
+  .today-date {
+    font-size: 0.85rem;
+    color: var(--text-dim);
+    margin-bottom: 0.3rem;
+  }
+
+  .today-greeting {
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+  }
+
+  .stats-row {
+    display: flex;
+    gap: 0.6rem;
+    margin-bottom: 1.2rem;
+  }
+
+  .stat-card {
+    flex: 1;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 0.8rem;
+    text-align: center;
+  }
+
+  .stat-num {
+    font-size: 1.6rem;
+    font-weight: 800;
+  }
+
+  .stat-num.red { color: var(--red); }
+  .stat-num.green { color: var(--green); }
+  .stat-num.gold { color: var(--gold); }
+
+  .stat-label {
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    margin-top: 0.15rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 2.5rem 1rem;
+    color: var(--text-dim);
+  }
+
+  .empty-state-icon {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+    opacity: 0.3;
+  }
+
+  /* ─── Schedule View ─── */
+  .day-tabs {
+    display: flex;
+    gap: 0.3rem;
+    margin-bottom: 1rem;
+    overflow-x: auto;
+    padding-bottom: 0.3rem;
+  }
+
+  .day-tab {
+    flex-shrink: 0;
+    padding: 0.5rem 0.7rem;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--text-dim);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-align: center;
+    cursor: pointer;
+    min-width: 52px;
+    transition: all 0.15s;
+  }
+
+  .day-tab.active {
+    background: var(--red);
+    color: white;
+    border-color: var(--red);
+  }
+
+  .day-tab .day-name { display: block; }
+  .day-tab .day-num {
+    display: block;
+    font-size: 1rem;
+    font-weight: 800;
+    margin-top: 0.1rem;
+  }
+
+  /* ─── Clients View ─── */
+  .search-box {
+    width: 100%;
+    padding: 0.7rem 1rem;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--text);
+    font-size: 0.9rem;
+    outline: none;
+    margin-bottom: 0.8rem;
+    transition: border-color 0.2s;
+  }
+
+  .search-box:focus { border-color: var(--red); }
+  .search-box::placeholder { color: var(--text-faint); }
+
+  .client-avatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: var(--red-dim);
+    color: var(--red);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.9rem;
+    flex-shrink: 0;
+  }
+
+  .client-info { flex: 1; min-width: 0; }
+
+  .client-phone {
+    font-size: 0.78rem;
+    color: var(--text-dim);
+  }
+
+  .client-sessions {
+    font-size: 0.7rem;
+    color: var(--text-faint);
+  }
+
+  /* ─── Log View ─── */
+  .log-entry {
+    border-left: 3px solid var(--red);
+    padding-left: 0.8rem;
+  }
+
+  .log-date {
+    font-size: 0.75rem;
+    color: var(--text-dim);
+  }
+
+  .log-notes {
+    font-size: 0.85rem;
+    color: var(--text-dim);
+    margin-top: 0.25rem;
+    font-style: italic;
+  }
+
+  /* ─── Buttons ─── */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    padding: 0.55rem 1.1rem;
+    border-radius: 10px;
+    border: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.1s, opacity 0.15s;
+  }
+
+  .btn:active { transform: scale(0.96); }
+
+  .btn-primary {
+    background: var(--red);
+    color: white;
+  }
+
+  .btn-secondary {
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--text);
+  }
+
+  .btn-small {
+    padding: 0.35rem 0.7rem;
+    font-size: 0.75rem;
+    border-radius: 8px;
+  }
+
+  .btn-icon {
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    border-radius: 50%;
+    font-size: 1.2rem;
+  }
+
+  .btn-danger {
+    background: var(--red-dim);
+    color: var(--red);
+    border: 1px solid transparent;
+  }
+
+  .btn-success {
+    background: var(--green-dim);
+    color: var(--green);
+    border: 1px solid transparent;
+  }
+
+  /* ─── Modal ─── */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 200;
+    justify-content: center;
+    align-items: flex-end;
+    backdrop-filter: blur(4px);
+  }
+
+  .modal-overlay.open {
+    display: flex;
+  }
+
+  .modal {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px 20px 0 0;
+    padding: 1.5rem;
+    width: 100%;
+    max-width: 500px;
+    max-height: 85dvh;
+    overflow-y: auto;
+    animation: slideUp 0.25s ease;
+  }
+
+  @keyframes slideUp {
+    from { transform: translateY(100%); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+
+  .modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.2rem;
+  }
+
+  .modal-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+  }
+
+  .modal-close {
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    font-size: 1.5rem;
+    cursor: pointer;
+    line-height: 1;
+    padding: 0.2rem;
+  }
+
+  /* ─── Form ─── */
+  .form-group {
+    margin-bottom: 1rem;
+  }
+
+  .form-label {
+    display: block;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--text-dim);
+    margin-bottom: 0.3rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .form-input, .form-select, .form-textarea {
+    width: 100%;
+    padding: 0.65rem 0.9rem;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--text);
+    font-size: 0.9rem;
+    outline: none;
+    font-family: inherit;
+    transition: border-color 0.2s;
+  }
+
+  .form-input:focus, .form-select:focus, .form-textarea:focus {
+    border-color: var(--red);
+  }
+
+  .form-textarea { resize: vertical; min-height: 70px; }
+
+  .form-select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.8rem center;
+    padding-right: 2.2rem;
+  }
+
+  .form-row {
+    display: flex;
+    gap: 0.8rem;
+  }
+
+  .form-row .form-group { flex: 1; }
+
+  .form-actions {
+    display: flex;
+    gap: 0.6rem;
+    margin-top: 1.2rem;
+  }
+
+  .form-actions .btn { flex: 1; padding: 0.75rem; }
+
+  /* ─── Bottom Nav ─── */
+  .bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--card);
+    border-top: 1px solid var(--border);
+    display: flex;
+    z-index: 100;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .nav-item {
+    flex: 1;
+    padding: 0.6rem 0 0.5rem;
+    text-align: center;
+    cursor: pointer;
+    color: var(--text-faint);
+    transition: color 0.15s;
+    border: none;
+    background: none;
+    font-family: inherit;
+  }
+
+  .nav-item.active { color: var(--red); }
+
+  .nav-icon {
+    display: block;
+    margin: 0 auto 0.15rem;
+    width: 24px;
+    height: 24px;
+  }
+
+  .nav-label {
+    font-size: 0.65rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+
+  /* ─── Detail View ─── */
+  .detail-header {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    margin-bottom: 1rem;
+  }
+
+  .detail-back {
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 0.3rem;
+  }
+
+  .detail-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: var(--red-dim);
+    color: var(--red);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.2rem;
+  }
+
+  .detail-name { font-size: 1.2rem; font-weight: 700; }
+  .detail-phone { font-size: 0.85rem; color: var(--text-dim); }
+
+  .detail-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.2rem;
+  }
+
+  .detail-notes {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 0.9rem 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .detail-notes-label {
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.3rem;
+  }
+
+  .detail-notes-text {
+    font-size: 0.9rem;
+    color: var(--text);
+  }
+
+  /* ─── Confirm Dialog ─── */
+  .confirm-dialog {
+    text-align: center;
+    padding: 0.5rem 0;
+  }
+
+  .confirm-dialog p {
+    margin-bottom: 1.2rem;
+    color: var(--text-dim);
+  }
+
+  /* ─── Scrollbar ─── */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+  /* ─── Desktop ─── */
+  @media (min-width: 768px) {
+    main { padding-bottom: 5rem; }
+    .modal { border-radius: 20px; align-self: center; margin-bottom: 0; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Top Bar -->
+<div class="topbar">
+  <div>
+    <div class="logo"><span>P</span>rle</div>
+    <div class="topbar-sub">Boxing Trainer</div>
+  </div>
+  <div style="text-align: right">
+    <div class="topbar-sub" id="topDate"></div>
+  </div>
+</div>
+
+<!-- Main Content -->
+<main>
+
+  <!-- TODAY VIEW -->
+  <div class="view active" id="viewToday">
+    <p class="today-date" id="todayDate"></p>
+    <h2 class="today-greeting" id="todayGreeting"></h2>
+
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-num red" id="statToday">0</div>
+        <div class="stat-label">Today</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num gold" id="statWeek">0</div>
+        <div class="stat-label">This week</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num green" id="statClients">0</div>
+        <div class="stat-label">Clients</div>
+      </div>
+    </div>
+
+    <div class="section-header">
+      <div class="section-title">Today's Sessions</div>
+    </div>
+    <div id="todaySessions"></div>
+  </div>
+
+  <!-- SCHEDULE VIEW -->
+  <div class="view" id="viewSchedule">
+    <div class="section-header">
+      <div class="section-title">Weekly Schedule</div>
+      <button class="btn btn-primary btn-small" onclick="openModal('session')">+ Session</button>
+    </div>
+
+    <div class="day-tabs" id="dayTabs"></div>
+    <div id="scheduleSessions"></div>
+  </div>
+
+  <!-- CLIENTS VIEW -->
+  <div class="view" id="viewClients">
+    <div class="section-header">
+      <div class="section-title">Clients</div>
+      <button class="btn btn-primary btn-small" onclick="openModal('client')">+ Client</button>
+    </div>
+    <input type="text" class="search-box" placeholder="Search clients..." id="clientSearch" oninput="renderClients()">
+    <div id="clientList"></div>
+  </div>
+
+  <!-- CLIENT DETAIL VIEW -->
+  <div class="view" id="viewClientDetail">
+    <div id="clientDetailContent"></div>
+  </div>
+
+  <!-- LOG VIEW -->
+  <div class="view" id="viewLog">
+    <div class="section-header">
+      <div class="section-title">Session Log</div>
+      <button class="btn btn-primary btn-small" onclick="openModal('log')">+ Log</button>
+    </div>
+    <div id="logList"></div>
+  </div>
+
+</main>
+
+<!-- Bottom Navigation -->
+<nav class="bottom-nav">
+  <button class="nav-item active" onclick="switchView('today')" data-view="today">
+    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+    <span class="nav-label">Today</span>
+  </button>
+  <button class="nav-item" onclick="switchView('schedule')" data-view="schedule">
+    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+    <span class="nav-label">Schedule</span>
+  </button>
+  <button class="nav-item" onclick="switchView('clients')" data-view="clients">
+    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+    <span class="nav-label">Clients</span>
+  </button>
+  <button class="nav-item" onclick="switchView('log')" data-view="log">
+    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg>
+    <span class="nav-label">Log</span>
+  </button>
+</nav>
+
+<!-- Modal Overlay -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModalOutside(event)">
+  <div class="modal" id="modalContent"></div>
+</div>
+
+<script>
+// ─── Data Layer ───
+const STORAGE_KEY = 'prle_data';
+
+function loadData() {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (raw) return JSON.parse(raw);
+  return { clients: [], sessions: [], logs: [] };
+}
+
+function saveData(data) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
+
+let data = loadData();
+
+// ─── Helpers ───
+const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+const DAYS_FULL = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+
+function getClient(id) { return data.clients.find(c => c.id === id); }
+
+function getInitials(name) {
+  return name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+}
+
+function formatTime(t) {
+  const [h, m] = t.split(':');
+  return `${h}:${m}`;
+}
+
+function getTodayDayIndex() {
+  const d = new Date().getDay();
+  return d === 0 ? 6 : d - 1; // Mon=0, Sun=6
+}
+
+function getWeekDates() {
+  const today = new Date();
+  const dayIdx = getTodayDayIndex();
+  const dates = [];
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(today);
+    d.setDate(today.getDate() - dayIdx + i);
+    dates.push(d);
+  }
+  return dates;
+}
+
+function dateStr(d) {
+  return d.toISOString().split('T')[0];
+}
+
+function todayStr() { return dateStr(new Date()); }
+
+function formatDate(str) {
+  const d = new Date(str + 'T00:00:00');
+  return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+}
+
+function getSessionsForDay(dayIndex) {
+  return data.sessions
+    .filter(s => s.dayOfWeek === dayIndex)
+    .sort((a, b) => a.time.localeCompare(b.time));
+}
+
+function getLogsForClient(clientId) {
+  return data.logs
+    .filter(l => l.clientId === clientId)
+    .sort((a, b) => b.date.localeCompare(a.date));
+}
+
+function getSessionCountForClient(clientId) {
+  return data.logs.filter(l => l.clientId === clientId).length;
+}
+
+function getWeekSessionCount() {
+  const weekDates = getWeekDates().map(d => dateStr(d));
+  return data.logs.filter(l => weekDates.includes(l.date)).length;
+}
+
+// ─── Navigation ───
+let currentView = 'today';
+let selectedScheduleDay = getTodayDayIndex();
+
+function switchView(view) {
+  currentView = view;
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('view' + view.charAt(0).toUpperCase() + view.slice(1)).classList.add('active');
+  document.querySelector(`[data-view="${view}"]`).classList.add('active');
+  renderCurrentView();
+}
+
+function renderCurrentView() {
+  switch (currentView) {
+    case 'today': renderToday(); break;
+    case 'schedule': renderSchedule(); break;
+    case 'clients': renderClients(); break;
+    case 'log': renderLog(); break;
+  }
+}
+
+// ─── Today View ───
+function renderToday() {
+  const now = new Date();
+  const opts = { weekday: 'long', month: 'long', day: 'numeric' };
+  document.getElementById('todayDate').textContent = now.toLocaleDateString('en-US', opts);
+
+  const hour = now.getHours();
+  let greeting = 'Good morning, Luka';
+  if (hour >= 12 && hour < 17) greeting = 'Good afternoon, Luka';
+  else if (hour >= 17) greeting = 'Good evening, Luka';
+  document.getElementById('todayGreeting').textContent = greeting;
+
+  const todaySessions = getSessionsForDay(getTodayDayIndex());
+  const todayLogs = data.logs.filter(l => l.date === todayStr());
+
+  document.getElementById('statToday').textContent = todaySessions.length;
+  document.getElementById('statWeek').textContent = getWeekSessionCount();
+  document.getElementById('statClients').textContent = data.clients.length;
+
+  const container = document.getElementById('todaySessions');
+  if (todaySessions.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-state-icon">---</div>
+        <p>No sessions scheduled for today</p>
+      </div>`;
+    return;
+  }
+
+  container.innerHTML = todaySessions.map(s => {
+    const client = getClient(s.clientId);
+    if (!client) return '';
+    const logged = todayLogs.some(l => l.clientId === s.clientId);
+    return `
+      <div class="card" onclick="openLogForSession('${s.clientId}')">
+        <div class="card-row">
+          <div>
+            <div class="card-name">${client.name}</div>
+            <div class="card-sub">${s.duration} min</div>
+            ${logged
+              ? '<span class="card-badge badge-done">Logged</span>'
+              : '<span class="card-badge badge-upcoming">Upcoming</span>'}
+          </div>
+          <div class="card-time">${formatTime(s.time)}</div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+// ─── Schedule View ───
+function renderSchedule() {
+  const weekDates = getWeekDates();
+  const todayIdx = getTodayDayIndex();
+
+  const tabsEl = document.getElementById('dayTabs');
+  tabsEl.innerHTML = DAYS.map((d, i) => {
+    const date = weekDates[i];
+    const isToday = i === todayIdx;
+    const isActive = i === selectedScheduleDay;
+    return `
+      <div class="day-tab ${isActive ? 'active' : ''}" onclick="selectDay(${i})">
+        <span class="day-name">${d}</span>
+        <span class="day-num">${date.getDate()}</span>
+      </div>`;
+  }).join('');
+
+  const sessions = getSessionsForDay(selectedScheduleDay);
+  const container = document.getElementById('scheduleSessions');
+
+  if (sessions.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-state-icon">---</div>
+        <p>No sessions on ${DAYS_FULL[selectedScheduleDay]}</p>
+      </div>`;
+    return;
+  }
+
+  container.innerHTML = sessions.map(s => {
+    const client = getClient(s.clientId);
+    if (!client) return '';
+    return `
+      <div class="card">
+        <div class="card-row">
+          <div>
+            <div class="card-name">${client.name}</div>
+            <div class="card-sub">${s.duration} min</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:0.5rem">
+            <div class="card-time">${formatTime(s.time)}</div>
+            <button class="btn btn-danger btn-icon btn-small" onclick="event.stopPropagation();deleteSession('${s.id}')" title="Remove">x</button>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function selectDay(i) {
+  selectedScheduleDay = i;
+  renderSchedule();
+}
+
+// ─── Clients View ───
+function renderClients() {
+  const query = (document.getElementById('clientSearch')?.value || '').toLowerCase();
+  const filtered = data.clients
+    .filter(c => c.name.toLowerCase().includes(query))
+    .sort((a, b) => a.name.localeCompare(b.name));
+
+  const container = document.getElementById('clientList');
+  if (filtered.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-state-icon">---</div>
+        <p>${data.clients.length === 0 ? 'Add your first client' : 'No matches'}</p>
+      </div>`;
+    return;
+  }
+
+  container.innerHTML = filtered.map(c => {
+    const count = getSessionCountForClient(c.id);
+    return `
+      <div class="card" onclick="showClientDetail('${c.id}')">
+        <div class="card-row">
+          <div class="client-avatar">${getInitials(c.name)}</div>
+          <div class="client-info">
+            <div class="card-name">${c.name}</div>
+            <div class="client-phone">${c.phone || 'No phone'}</div>
+          </div>
+          <div class="client-sessions" style="text-align:right">
+            <div style="font-size:1.1rem;font-weight:700;color:var(--gold)">${count}</div>
+            <div style="font-size:0.65rem;color:var(--text-faint)">sessions</div>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+// ─── Client Detail ───
+function showClientDetail(clientId) {
+  const client = getClient(clientId);
+  if (!client) return;
+
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('viewClientDetail').classList.add('active');
+
+  const logs = getLogsForClient(clientId);
+  const sessions = data.sessions.filter(s => s.clientId === clientId);
+
+  const scheduleInfo = sessions.map(s =>
+    `${DAYS[s.dayOfWeek]} ${formatTime(s.time)} (${s.duration}min)`
+  ).join(', ') || 'No scheduled sessions';
+
+  document.getElementById('clientDetailContent').innerHTML = `
+    <div class="detail-header">
+      <button class="detail-back" onclick="switchView('clients')">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      </button>
+      <div class="detail-avatar">${getInitials(client.name)}</div>
+      <div>
+        <div class="detail-name">${client.name}</div>
+        <div class="detail-phone">${client.phone || 'No phone'}</div>
+      </div>
+    </div>
+
+    <div class="detail-actions">
+      <button class="btn btn-secondary btn-small" onclick="openModal('client', '${client.id}')">Edit</button>
+      <button class="btn btn-danger btn-small" onclick="confirmDeleteClient('${client.id}')">Delete</button>
+      ${client.phone ? `<a href="tel:${client.phone}" class="btn btn-success btn-small" style="text-decoration:none">Call</a>` : ''}
+    </div>
+
+    ${client.notes ? `
+    <div class="detail-notes">
+      <div class="detail-notes-label">Notes</div>
+      <div class="detail-notes-text">${client.notes}</div>
+    </div>` : ''}
+
+    <div class="detail-notes">
+      <div class="detail-notes-label">Schedule</div>
+      <div class="detail-notes-text">${scheduleInfo}</div>
+    </div>
+
+    <div class="section-header">
+      <div class="section-title">Session History</div>
+      <div style="font-size:0.8rem;color:var(--text-dim)">${logs.length} total</div>
+    </div>
+
+    ${logs.length === 0 ? '<div class="empty-state"><p>No sessions logged yet</p></div>' :
+      logs.map(l => `
+        <div class="card log-entry">
+          <div class="card-row">
+            <div>
+              <div class="log-date">${formatDate(l.date)}</div>
+              ${l.notes ? `<div class="log-notes">"${l.notes}"</div>` : ''}
+            </div>
+            <button class="btn btn-danger btn-icon btn-small" onclick="event.stopPropagation();deleteLog('${l.id}','${client.id}')" title="Delete">x</button>
+          </div>
+        </div>`).join('')}
+  `;
+}
+
+// ─── Log View ───
+function renderLog() {
+  const logs = [...data.logs].sort((a, b) => {
+    const d = b.date.localeCompare(a.date);
+    return d !== 0 ? d : b.id.localeCompare(a.id);
+  });
+
+  const container = document.getElementById('logList');
+  if (logs.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-state-icon">---</div>
+        <p>No sessions logged yet</p>
+      </div>`;
+    return;
+  }
+
+  let lastDate = '';
+  container.innerHTML = logs.map(l => {
+    const client = getClient(l.clientId);
+    const showDate = l.date !== lastDate;
+    lastDate = l.date;
+    return `
+      ${showDate ? `<div style="margin-top:1rem;margin-bottom:0.4rem;font-size:0.78rem;color:var(--text-dim);font-weight:600">${formatDate(l.date)}</div>` : ''}
+      <div class="card log-entry">
+        <div class="card-row">
+          <div>
+            <div class="card-name">${client ? client.name : 'Unknown'}</div>
+            ${l.notes ? `<div class="log-notes">"${l.notes}"</div>` : ''}
+          </div>
+          <button class="btn btn-danger btn-icon btn-small" onclick="event.stopPropagation();deleteLogFromList('${l.id}')" title="Delete">x</button>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+// ─── Modal System ───
+function openModal(type, editId) {
+  const overlay = document.getElementById('modalOverlay');
+  const content = document.getElementById('modalContent');
+
+  if (type === 'client') {
+    const c = editId ? getClient(editId) : null;
+    content.innerHTML = `
+      <div class="modal-header">
+        <div class="modal-title">${c ? 'Edit Client' : 'New Client'}</div>
+        <button class="modal-close" onclick="closeModal()">&times;</button>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Name</label>
+        <input type="text" class="form-input" id="fClientName" value="${c ? c.name : ''}" placeholder="Client name">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Phone</label>
+        <input type="tel" class="form-input" id="fClientPhone" value="${c ? c.phone || '' : ''}" placeholder="Phone number">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Notes</label>
+        <textarea class="form-textarea" id="fClientNotes" placeholder="Goals, level, injuries...">${c ? c.notes || '' : ''}</textarea>
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="saveClient('${editId || ''}')">${c ? 'Save' : 'Add Client'}</button>
+      </div>`;
+  }
+
+  else if (type === 'session') {
+    if (data.clients.length === 0) {
+      content.innerHTML = `
+        <div class="modal-header">
+          <div class="modal-title">New Session</div>
+          <button class="modal-close" onclick="closeModal()">&times;</button>
+        </div>
+        <div class="empty-state">
+          <p>Add a client first before scheduling sessions.</p>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-primary" onclick="closeModal();switchView('clients');openModal('client')">Add Client</button>
+        </div>`;
+    } else {
+      const clientOptions = data.clients
+        .sort((a, b) => a.name.localeCompare(b.name))
+        .map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+      const dayOptions = DAYS.map((d, i) =>
+        `<option value="${i}" ${i === selectedScheduleDay ? 'selected' : ''}>${DAYS_FULL[i]}</option>`).join('');
+      content.innerHTML = `
+        <div class="modal-header">
+          <div class="modal-title">New Session</div>
+          <button class="modal-close" onclick="closeModal()">&times;</button>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Client</label>
+          <select class="form-select" id="fSessionClient">${clientOptions}</select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Day</label>
+          <select class="form-select" id="fSessionDay">${dayOptions}</select>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Time</label>
+            <input type="time" class="form-input" id="fSessionTime" value="10:00">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Duration (min)</label>
+            <select class="form-select" id="fSessionDuration">
+              <option value="30">30 min</option>
+              <option value="45">45 min</option>
+              <option value="60" selected>60 min</option>
+              <option value="90">90 min</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+          <button class="btn btn-primary" onclick="saveSession()">Add Session</button>
+        </div>`;
+    }
+  }
+
+  else if (type === 'log') {
+    if (data.clients.length === 0) {
+      content.innerHTML = `
+        <div class="modal-header">
+          <div class="modal-title">Log Session</div>
+          <button class="modal-close" onclick="closeModal()">&times;</button>
+        </div>
+        <div class="empty-state"><p>Add a client first.</p></div>
+        <div class="form-actions">
+          <button class="btn btn-primary" onclick="closeModal();switchView('clients');openModal('client')">Add Client</button>
+        </div>`;
+    } else {
+      const clientOptions = data.clients
+        .sort((a, b) => a.name.localeCompare(b.name))
+        .map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+      content.innerHTML = `
+        <div class="modal-header">
+          <div class="modal-title">Log Session</div>
+          <button class="modal-close" onclick="closeModal()">&times;</button>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Client</label>
+          <select class="form-select" id="fLogClient">${clientOptions}</select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Date</label>
+          <input type="date" class="form-input" id="fLogDate" value="${todayStr()}">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Notes</label>
+          <textarea class="form-textarea" id="fLogNotes" placeholder="What did you work on? How did it go?"></textarea>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+          <button class="btn btn-primary" onclick="saveLog()">Log Session</button>
+        </div>`;
+    }
+  }
+
+  overlay.classList.add('open');
+  const firstInput = content.querySelector('input, select, textarea');
+  if (firstInput) setTimeout(() => firstInput.focus(), 100);
+}
+
+function openLogForSession(clientId) {
+  openModal('log');
+  setTimeout(() => {
+    const sel = document.getElementById('fLogClient');
+    if (sel) sel.value = clientId;
+  }, 50);
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('open');
+}
+
+function closeModalOutside(e) {
+  if (e.target === e.currentTarget) closeModal();
+}
+
+// ─── CRUD ───
+function saveClient(editId) {
+  const name = document.getElementById('fClientName').value.trim();
+  if (!name) return;
+  const phone = document.getElementById('fClientPhone').value.trim();
+  const notes = document.getElementById('fClientNotes').value.trim();
+
+  if (editId) {
+    const c = getClient(editId);
+    if (c) { c.name = name; c.phone = phone; c.notes = notes; }
+  } else {
+    data.clients.push({ id: uid(), name, phone, notes, createdAt: todayStr() });
+  }
+
+  saveData(data);
+  closeModal();
+  renderCurrentView();
+  if (editId) showClientDetail(editId);
+}
+
+function saveSession() {
+  const clientId = document.getElementById('fSessionClient').value;
+  const dayOfWeek = parseInt(document.getElementById('fSessionDay').value);
+  const time = document.getElementById('fSessionTime').value;
+  const duration = parseInt(document.getElementById('fSessionDuration').value);
+
+  if (!clientId || !time) return;
+
+  data.sessions.push({ id: uid(), clientId, dayOfWeek, time, duration });
+  saveData(data);
+  closeModal();
+  selectedScheduleDay = dayOfWeek;
+  renderCurrentView();
+}
+
+function saveLog(presetClientId) {
+  const clientId = document.getElementById('fLogClient').value;
+  const date = document.getElementById('fLogDate').value;
+  const notes = document.getElementById('fLogNotes').value.trim();
+
+  if (!clientId || !date) return;
+
+  data.logs.push({ id: uid(), clientId, date, notes });
+  saveData(data);
+  closeModal();
+  renderCurrentView();
+}
+
+function deleteSession(id) {
+  data.sessions = data.sessions.filter(s => s.id !== id);
+  saveData(data);
+  renderCurrentView();
+}
+
+function deleteLog(id, clientId) {
+  data.logs = data.logs.filter(l => l.id !== id);
+  saveData(data);
+  showClientDetail(clientId);
+}
+
+function deleteLogFromList(id) {
+  data.logs = data.logs.filter(l => l.id !== id);
+  saveData(data);
+  renderLog();
+}
+
+function confirmDeleteClient(id) {
+  const client = getClient(id);
+  if (!client) return;
+  const overlay = document.getElementById('modalOverlay');
+  const content = document.getElementById('modalContent');
+  content.innerHTML = `
+    <div class="modal-header">
+      <div class="modal-title">Delete Client</div>
+      <button class="modal-close" onclick="closeModal()">&times;</button>
+    </div>
+    <div class="confirm-dialog">
+      <p>Remove <strong>${client.name}</strong> and all their sessions and logs?</p>
+      <div class="form-actions">
+        <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+        <button class="btn btn-danger" onclick="deleteClient('${id}')">Delete</button>
+      </div>
+    </div>`;
+  overlay.classList.add('open');
+}
+
+function deleteClient(id) {
+  data.clients = data.clients.filter(c => c.id !== id);
+  data.sessions = data.sessions.filter(s => s.clientId !== id);
+  data.logs = data.logs.filter(l => l.clientId !== id);
+  saveData(data);
+  closeModal();
+  switchView('clients');
+}
+
+// ─── Init ───
+function init() {
+  const now = new Date();
+  document.getElementById('topDate').textContent = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  renderToday();
+}
+
+init();
+</script>
+
+</body>
+</html>
