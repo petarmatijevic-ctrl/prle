@@ -2,7 +2,10 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0c0c14">
 <title>Prle - Boxing Trainer</title>
 <style>
   :root {
@@ -32,14 +35,14 @@
     flex-direction: column;
     overflow-x: hidden;
     -webkit-tap-highlight-color: transparent;
+    -webkit-text-size-adjust: 100%;
   }
 
-  /* ‚îÄ‚îÄ‚îÄ Top Bar ‚îÄ‚îÄ‚îÄ */
   .topbar {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 1rem 1.2rem 0.5rem;
+    padding: 0.8rem 1.2rem 0.4rem;
     position: sticky;
     top: 0;
     background: var(--bg);
@@ -50,10 +53,9 @@
   .logo span { color: var(--red); }
   .topbar-sub { font-size: 0.75rem; color: var(--text-dim); }
 
-  /* ‚îÄ‚îÄ‚îÄ Main Content ‚îÄ‚îÄ‚îÄ */
   main {
     flex: 1;
-    padding: 0.5rem 1rem 6rem;
+    padding: 0.3rem 1rem 5.5rem;
     max-width: 600px;
     width: 100%;
     margin: 0 auto;
@@ -66,154 +68,157 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin: 1rem 0 0.7rem;
+    margin: 1rem 0 0.6rem;
   }
 
-  .section-title { font-size: 1.1rem; font-weight: 700; }
+  .section-title { font-size: 1.05rem; font-weight: 700; }
 
   /* ‚îÄ‚îÄ‚îÄ Cards ‚îÄ‚îÄ‚îÄ */
   .card {
     background: var(--card);
     border: 1px solid var(--border);
     border-radius: 12px;
-    padding: 0.9rem 1rem;
-    margin-bottom: 0.6rem;
+    padding: 0.85rem 1rem;
+    margin-bottom: 0.5rem;
     transition: background 0.15s;
     cursor: pointer;
-    position: relative;
   }
 
-  .card:hover { background: var(--card-hover); }
+  .card:active { background: var(--card-hover); }
 
   .card-row {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 0.8rem;
+    gap: 0.7rem;
   }
 
-  .card-name { font-weight: 600; font-size: 1rem; }
-  .card-sub { font-size: 0.8rem; color: var(--text-dim); margin-top: 0.15rem; }
+  .card-name { font-weight: 600; font-size: 0.95rem; }
+  .card-sub { font-size: 0.78rem; color: var(--text-dim); margin-top: 0.1rem; }
   .card-time { font-size: 0.85rem; font-weight: 600; color: var(--gold); white-space: nowrap; }
+  .card-price { font-size: 0.75rem; color: var(--green); font-weight: 600; }
 
-  .card-badge {
-    display: inline-block;
-    font-size: 0.7rem;
-    font-weight: 600;
-    padding: 0.15rem 0.5rem;
-    border-radius: 20px;
-    margin-top: 0.3rem;
+  .empty-state { text-align: center; padding: 2rem 1rem; color: var(--text-dim); }
+  .empty-state-icon { font-size: 2rem; margin-bottom: 0.4rem; opacity: 0.3; }
+
+  /* ‚îÄ‚îÄ‚îÄ Home View ‚îÄ‚îÄ‚îÄ */
+  .home-greeting { font-size: 1.3rem; font-weight: 700; margin-bottom: 0.8rem; }
+
+  .period-tabs {
+    display: flex;
+    gap: 0;
+    margin-bottom: 1rem;
+    background: var(--card);
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    overflow: hidden;
   }
 
-  .badge-done { background: var(--green-dim); color: var(--green); }
-  .badge-upcoming { background: var(--gold-dim); color: var(--gold); }
+  .period-tab {
+    flex: 1;
+    padding: 0.5rem;
+    text-align: center;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-dim);
+    cursor: pointer;
+    border: none;
+    background: none;
+    font-family: inherit;
+    transition: all 0.15s;
+  }
 
-  /* ‚îÄ‚îÄ‚îÄ Today View ‚îÄ‚îÄ‚îÄ */
-  .today-date { font-size: 0.85rem; color: var(--text-dim); margin-bottom: 0.3rem; }
-  .today-greeting { font-size: 1.4rem; font-weight: 700; margin-bottom: 1rem; }
+  .period-tab.active { background: var(--red); color: white; }
 
-  .stats-row { display: flex; gap: 0.6rem; margin-bottom: 1.2rem; }
+  .home-stats {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
 
-  .stat-card {
+  .home-stat {
     flex: 1;
     background: var(--card);
     border: 1px solid var(--border);
     border-radius: 12px;
-    padding: 0.8rem;
+    padding: 0.7rem 0.5rem;
     text-align: center;
   }
 
-  .stat-num { font-size: 1.6rem; font-weight: 800; }
-  .stat-num.red { color: var(--red); }
-  .stat-num.green { color: var(--green); }
-  .stat-num.gold { color: var(--gold); }
+  .home-stat-num { font-size: 1.4rem; font-weight: 800; }
+  .home-stat-label { font-size: 0.65rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.4px; margin-top: 0.1rem; }
 
-  .stat-label {
-    font-size: 0.7rem;
-    color: var(--text-dim);
-    margin-top: 0.15rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-
-  .empty-state { text-align: center; padding: 2.5rem 1rem; color: var(--text-dim); }
-  .empty-state-icon { font-size: 2.5rem; margin-bottom: 0.5rem; opacity: 0.3; }
-
-  /* ‚îÄ‚îÄ‚îÄ Schedule View ‚îÄ‚îÄ‚îÄ */
+  /* ‚îÄ‚îÄ‚îÄ Schedule ‚îÄ‚îÄ‚îÄ */
   .week-nav {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 0.8rem;
+    margin-bottom: 0.7rem;
   }
 
-  .week-nav-label { font-size: 0.85rem; font-weight: 600; color: var(--text-dim); }
-  .week-nav-label .current-week { color: var(--gold); }
+  .week-nav-label { font-size: 0.82rem; font-weight: 600; color: var(--text-dim); }
+  .week-nav-label .cw { color: var(--gold); }
 
   .week-nav-btn {
     background: var(--card);
     border: 1px solid var(--border);
     color: var(--text);
-    width: 36px;
-    height: 36px;
+    width: 40px;
+    height: 40px;
     border-radius: 10px;
-    font-size: 1.1rem;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.15s;
   }
 
   .week-nav-btn:active { transform: scale(0.93); }
 
   .day-tabs {
     display: flex;
-    gap: 0.3rem;
-    margin-bottom: 1rem;
+    gap: 0.25rem;
+    margin-bottom: 0.8rem;
     overflow-x: auto;
-    padding-bottom: 0.3rem;
+    -webkit-overflow-scrolling: touch;
   }
 
   .day-tab {
-    flex-shrink: 0;
-    padding: 0.5rem 0.7rem;
+    flex: 1;
+    min-width: 46px;
+    padding: 0.45rem 0.3rem;
     border-radius: 10px;
     border: 1px solid var(--border);
     background: var(--card);
     color: var(--text-dim);
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     font-weight: 600;
     text-align: center;
     cursor: pointer;
-    min-width: 52px;
-    transition: all 0.15s;
   }
 
   .day-tab.active { background: var(--red); color: white; border-color: var(--red); }
   .day-tab .day-name { display: block; }
-  .day-tab .day-num { display: block; font-size: 1rem; font-weight: 800; margin-top: 0.1rem; }
+  .day-tab .day-num { display: block; font-size: 0.95rem; font-weight: 800; margin-top: 0.05rem; }
 
-  /* ‚îÄ‚îÄ‚îÄ Clients View ‚îÄ‚îÄ‚îÄ */
+  /* ‚îÄ‚îÄ‚îÄ Clients ‚îÄ‚îÄ‚îÄ */
   .search-box {
     width: 100%;
-    padding: 0.7rem 1rem;
+    padding: 0.65rem 1rem;
     border-radius: 10px;
     border: 1px solid var(--border);
     background: var(--card);
     color: var(--text);
     font-size: 0.9rem;
     outline: none;
-    margin-bottom: 0.8rem;
-    transition: border-color 0.2s;
+    margin-bottom: 0.7rem;
   }
 
   .search-box:focus { border-color: var(--red); }
   .search-box::placeholder { color: var(--text-faint); }
 
   .client-avatar {
-    width: 38px;
-    height: 38px;
+    width: 42px;
+    height: 42px;
     border-radius: 50%;
     background: var(--red-dim);
     color: var(--red);
@@ -221,88 +226,77 @@
     align-items: center;
     justify-content: center;
     font-weight: 700;
-    font-size: 0.9rem;
-    flex-shrink: 0;
-  }
-
-  .client-info { flex: 1; min-width: 0; }
-  .client-phone { font-size: 0.78rem; color: var(--text-dim); }
-
-  /* ‚îÄ‚îÄ‚îÄ Stats Bars ‚îÄ‚îÄ‚îÄ */
-  .stat-bars { margin-bottom: 1rem; }
-
-  .stat-bar-item {
-    margin-bottom: 0.7rem;
-  }
-
-  .stat-bar-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 0.25rem;
-  }
-
-  .stat-bar-name {
-    font-size: 0.75rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: var(--text-dim);
-  }
-
-  .stat-bar-value {
     font-size: 0.85rem;
-    font-weight: 700;
-  }
-
-  .stat-bar-change {
-    font-size: 0.7rem;
-    font-weight: 600;
-    margin-left: 0.4rem;
-  }
-
-  .stat-bar-change.up { color: var(--green); }
-  .stat-bar-change.down { color: var(--red); }
-  .stat-bar-change.same { color: var(--text-faint); }
-
-  .stat-bar-track {
-    width: 100%;
-    height: 8px;
-    background: var(--bg);
-    border-radius: 4px;
+    flex-shrink: 0;
     overflow: hidden;
   }
 
-  .stat-bar-fill {
+  .client-avatar img {
+    width: 100%;
     height: 100%;
-    border-radius: 4px;
-    transition: width 0.4s ease;
+    object-fit: cover;
   }
 
-  .stat-bar-fill.low { background: var(--red); }
-  .stat-bar-fill.mid { background: var(--gold); }
-  .stat-bar-fill.high { background: var(--green); }
+  .client-info { flex: 1; min-width: 0; }
+  .client-phone { font-size: 0.75rem; color: var(--text-dim); }
+
+  /* ‚îÄ‚îÄ‚îÄ Circle Stats ‚îÄ‚îÄ‚îÄ */
+  .stat-circles {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.8rem;
+    margin-bottom: 1rem;
+  }
+
+  .stat-circle-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .stat-circle-svg { transform: rotate(-90deg); }
+
+  .stat-circle-bg { fill: none; stroke: var(--border); }
+  .stat-circle-fill { fill: none; stroke-linecap: round; transition: stroke-dashoffset 0.5s ease; }
+  .stat-circle-fill.low { stroke: var(--red); }
+  .stat-circle-fill.mid { stroke: var(--gold); }
+  .stat-circle-fill.high { stroke: var(--green); }
+
+  .stat-circle-text {
+    font-size: 0.95rem;
+    font-weight: 800;
+    fill: var(--text);
+  }
+
+  .stat-circle-label {
+    font-size: 0.65rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    color: var(--text-dim);
+    margin-top: 0.25rem;
+  }
+
+  .stat-circle-change {
+    font-size: 0.6rem;
+    font-weight: 600;
+    margin-top: 0.1rem;
+  }
+
+  .stat-circle-change.up { color: var(--green); }
+  .stat-circle-change.down { color: var(--red); }
+  .stat-circle-change.same { color: var(--text-faint); }
 
   .stat-history-entry {
-    font-size: 0.78rem;
+    font-size: 0.75rem;
     color: var(--text-dim);
-    padding: 0.5rem 0;
+    padding: 0.45rem 0;
     border-bottom: 1px solid var(--border);
   }
 
   .stat-history-entry:last-child { border-bottom: none; }
-
-  .stat-history-date {
-    font-weight: 600;
-    color: var(--text);
-    margin-bottom: 0.2rem;
-  }
-
-  .stat-history-values {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.3rem 0.8rem;
-  }
+  .stat-history-date { font-weight: 600; color: var(--text); margin-bottom: 0.15rem; }
+  .stat-history-values { display: flex; flex-wrap: wrap; gap: 0.2rem 0.7rem; }
 
   /* ‚îÄ‚îÄ‚îÄ Buttons ‚îÄ‚îÄ‚îÄ */
   .btn {
@@ -316,14 +310,14 @@
     font-size: 0.85rem;
     font-weight: 600;
     cursor: pointer;
-    transition: transform 0.1s, opacity 0.15s;
+    -webkit-tap-highlight-color: transparent;
   }
 
   .btn:active { transform: scale(0.96); }
   .btn-primary { background: var(--red); color: white; }
   .btn-secondary { background: var(--card); border: 1px solid var(--border); color: var(--text); }
   .btn-small { padding: 0.35rem 0.7rem; font-size: 0.75rem; border-radius: 8px; }
-  .btn-icon { width: 34px; height: 34px; padding: 0; border-radius: 50%; font-size: 1.2rem; }
+  .btn-icon { width: 36px; height: 36px; padding: 0; border-radius: 50%; font-size: 1.2rem; }
   .btn-danger { background: var(--red-dim); color: var(--red); border: 1px solid transparent; }
   .btn-success { background: var(--green-dim); color: var(--green); border: 1px solid transparent; }
 
@@ -345,12 +339,13 @@
     background: var(--card);
     border: 1px solid var(--border);
     border-radius: 20px 20px 0 0;
-    padding: 1.5rem;
+    padding: 1.3rem;
     width: 100%;
     max-width: 500px;
     max-height: 85dvh;
     overflow-y: auto;
-    animation: slideUp 0.25s ease;
+    animation: slideUp 0.2s ease;
+    -webkit-overflow-scrolling: touch;
   }
 
   @keyframes slideUp {
@@ -358,53 +353,36 @@
     to { transform: translateY(0); opacity: 1; }
   }
 
-  .modal-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 1.2rem;
-  }
+  .modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+  .modal-title { font-size: 1.05rem; font-weight: 700; }
+  .modal-close { background: none; border: none; color: var(--text-dim); font-size: 1.5rem; cursor: pointer; padding: 0.3rem; }
 
-  .modal-title { font-size: 1.1rem; font-weight: 700; }
-
-  .modal-close {
-    background: none;
-    border: none;
-    color: var(--text-dim);
-    font-size: 1.5rem;
-    cursor: pointer;
-    line-height: 1;
-    padding: 0.2rem;
-  }
-
-  /* ‚îÄ‚îÄ‚îÄ Form ‚îÄ‚îÄ‚îÄ */
-  .form-group { margin-bottom: 1rem; }
+  .form-group { margin-bottom: 0.85rem; }
 
   .form-label {
     display: block;
-    font-size: 0.78rem;
+    font-size: 0.72rem;
     font-weight: 600;
     color: var(--text-dim);
-    margin-bottom: 0.3rem;
+    margin-bottom: 0.25rem;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.4px;
   }
 
   .form-input, .form-select, .form-textarea {
     width: 100%;
-    padding: 0.65rem 0.9rem;
+    padding: 0.6rem 0.85rem;
     border-radius: 10px;
     border: 1px solid var(--border);
     background: var(--bg);
     color: var(--text);
-    font-size: 0.9rem;
+    font-size: 16px; /* prevents iOS zoom */
     outline: none;
     font-family: inherit;
-    transition: border-color 0.2s;
   }
 
   .form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--red); }
-  .form-textarea { resize: vertical; min-height: 70px; }
+  .form-textarea { resize: vertical; min-height: 60px; }
 
   .form-select {
     appearance: none;
@@ -414,34 +392,15 @@
     padding-right: 2.2rem;
   }
 
-  .form-row { display: flex; gap: 0.8rem; }
+  .form-row { display: flex; gap: 0.6rem; }
   .form-row .form-group { flex: 1; }
-  .form-actions { display: flex; gap: 0.6rem; margin-top: 1.2rem; }
-  .form-actions .btn { flex: 1; padding: 0.75rem; }
+  .form-actions { display: flex; gap: 0.5rem; margin-top: 1rem; }
+  .form-actions .btn { flex: 1; padding: 0.7rem; }
 
-  .slider-group { margin-bottom: 0.8rem; }
-
-  .slider-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 0.2rem;
-  }
-
-  .slider-label {
-    font-size: 0.75rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: var(--text-dim);
-  }
-
-  .slider-value {
-    font-size: 0.85rem;
-    font-weight: 700;
-    min-width: 2rem;
-    text-align: right;
-  }
+  .slider-group { margin-bottom: 0.65rem; }
+  .slider-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.15rem; }
+  .slider-label { font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; color: var(--text-dim); }
+  .slider-value { font-size: 0.85rem; font-weight: 700; min-width: 2rem; text-align: right; }
 
   input[type="range"] {
     width: 100%;
@@ -455,13 +414,33 @@
 
   input[type="range"]::-webkit-slider-thumb {
     -webkit-appearance: none;
-    width: 22px;
-    height: 22px;
+    width: 24px;
+    height: 24px;
     border-radius: 50%;
     background: var(--red);
     cursor: pointer;
     border: 2px solid var(--card);
   }
+
+  /* ‚îÄ‚îÄ‚îÄ Photo Upload ‚îÄ‚îÄ‚îÄ */
+  .photo-upload {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    background: var(--bg);
+    border: 2px dashed var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    overflow: hidden;
+    margin: 0 auto 0.8rem;
+    position: relative;
+  }
+
+  .photo-upload img { width: 100%; height: 100%; object-fit: cover; }
+  .photo-upload-label { font-size: 0.6rem; color: var(--text-faint); text-align: center; }
+  .photo-upload input { display: none; }
 
   /* ‚îÄ‚îÄ‚îÄ Bottom Nav ‚îÄ‚îÄ‚îÄ */
   .bottom-nav {
@@ -478,42 +457,27 @@
 
   .nav-item {
     flex: 1;
-    padding: 0.6rem 0 0.5rem;
+    padding: 0.55rem 0 0.45rem;
     text-align: center;
     cursor: pointer;
     color: var(--text-faint);
-    transition: color 0.15s;
     border: none;
     background: none;
     font-family: inherit;
+    -webkit-tap-highlight-color: transparent;
   }
 
   .nav-item.active { color: var(--red); }
+  .nav-icon { display: block; margin: 0 auto 0.1rem; width: 22px; height: 22px; }
+  .nav-label { font-size: 0.6rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; }
 
-  .nav-icon { display: block; margin: 0 auto 0.15rem; width: 24px; height: 24px; }
-
-  .nav-label {
-    font-size: 0.65rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.3px;
-  }
-
-  /* ‚îÄ‚îÄ‚îÄ Detail View ‚îÄ‚îÄ‚îÄ */
-  .detail-header { display: flex; align-items: center; gap: 0.8rem; margin-bottom: 1rem; }
-
-  .detail-back {
-    background: none;
-    border: none;
-    color: var(--text-dim);
-    font-size: 1.2rem;
-    cursor: pointer;
-    padding: 0.3rem;
-  }
+  /* ‚îÄ‚îÄ‚îÄ Detail ‚îÄ‚îÄ‚îÄ */
+  .detail-header { display: flex; align-items: center; gap: 0.8rem; margin-bottom: 0.8rem; }
+  .detail-back { background: none; border: none; color: var(--text-dim); font-size: 1.2rem; cursor: pointer; padding: 0.3rem; }
 
   .detail-avatar {
-    width: 50px;
-    height: 50px;
+    width: 55px;
+    height: 55px;
     border-radius: 50%;
     background: var(--red-dim);
     color: var(--red);
@@ -522,36 +486,33 @@
     justify-content: center;
     font-weight: 700;
     font-size: 1.2rem;
+    overflow: hidden;
+    flex-shrink: 0;
   }
 
-  .detail-name { font-size: 1.2rem; font-weight: 700; }
-  .detail-phone { font-size: 0.85rem; color: var(--text-dim); }
-  .detail-actions { display: flex; gap: 0.5rem; margin-bottom: 1.2rem; }
+  .detail-avatar img { width: 100%; height: 100%; object-fit: cover; }
+  .detail-name { font-size: 1.15rem; font-weight: 700; }
+  .detail-phone { font-size: 0.8rem; color: var(--text-dim); }
+  .detail-meta { font-size: 0.72rem; color: var(--text-faint); margin-top: 0.1rem; }
+  .detail-actions { display: flex; gap: 0.4rem; margin-bottom: 1rem; flex-wrap: wrap; }
 
   .detail-notes {
     background: var(--card);
     border: 1px solid var(--border);
     border-radius: 12px;
-    padding: 0.9rem 1rem;
-    margin-bottom: 1rem;
+    padding: 0.8rem 0.9rem;
+    margin-bottom: 0.8rem;
   }
 
-  .detail-notes-label {
-    font-size: 0.7rem;
-    color: var(--text-dim);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 0.3rem;
-  }
-
-  .detail-notes-text { font-size: 0.9rem; color: var(--text); }
+  .detail-notes-label { font-size: 0.68rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 0.2rem; }
+  .detail-notes-text { font-size: 0.85rem; color: var(--text); }
 
   .confirm-dialog { text-align: center; padding: 0.5rem 0; }
-  .confirm-dialog p { margin-bottom: 1.2rem; color: var(--text-dim); }
+  .confirm-dialog p { margin-bottom: 1rem; color: var(--text-dim); }
 
-  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar { width: 3px; }
   ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
 
   @media (min-width: 768px) {
     main { padding-bottom: 5rem; }
@@ -566,34 +527,23 @@
     <div class="logo"><span>P</span>rle</div>
     <div class="topbar-sub">Boxing Trainer</div>
   </div>
-  <div style="text-align: right">
-    <div class="topbar-sub" id="topDate"></div>
-  </div>
+  <div style="text-align:right"><div class="topbar-sub" id="topDate"></div></div>
 </div>
 
 <main>
-  <!-- TODAY VIEW -->
-  <div class="view active" id="viewToday">
-    <p class="today-date" id="todayDate"></p>
-    <h2 class="today-greeting" id="todayGreeting"></h2>
-    <div class="stats-row">
-      <div class="stat-card">
-        <div class="stat-num red" id="statToday">0</div>
-        <div class="stat-label">Today</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-num gold" id="statWeek">0</div>
-        <div class="stat-label">This week</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-num green" id="statClients">0</div>
-        <div class="stat-label">Clients</div>
-      </div>
+  <!-- HOME VIEW -->
+  <div class="view active" id="viewHome">
+    <h2 class="home-greeting" id="homeGreeting"></h2>
+    <div class="period-tabs" id="periodTabs">
+      <button class="period-tab active" onclick="setPeriod('week')">This Week</button>
+      <button class="period-tab" onclick="setPeriod('month')">This Month</button>
+      <button class="period-tab" onclick="setPeriod('all')">All Time</button>
     </div>
+    <div class="home-stats" id="homeStats"></div>
     <div class="section-header">
       <div class="section-title">Today's Sessions</div>
     </div>
-    <div id="todaySessions"></div>
+    <div id="homeSessions"></div>
   </div>
 
   <!-- SCHEDULE VIEW -->
@@ -603,13 +553,9 @@
       <button class="btn btn-primary btn-small" onclick="openModal('session')">+ Session</button>
     </div>
     <div class="week-nav">
-      <button class="week-nav-btn" onclick="changeWeek(-1)">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
-      </button>
+      <button class="week-nav-btn" onclick="changeWeek(-1)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg></button>
       <div class="week-nav-label" id="weekLabel"></div>
-      <button class="week-nav-btn" onclick="changeWeek(1)">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
-      </button>
+      <button class="week-nav-btn" onclick="changeWeek(1)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg></button>
     </div>
     <div class="day-tabs" id="dayTabs"></div>
     <div id="scheduleSessions"></div>
@@ -625,17 +571,16 @@
     <div id="clientList"></div>
   </div>
 
-  <!-- CLIENT DETAIL VIEW -->
+  <!-- CLIENT DETAIL -->
   <div class="view" id="viewClientDetail">
     <div id="clientDetailContent"></div>
   </div>
 </main>
 
-<!-- Bottom Navigation -->
 <nav class="bottom-nav">
-  <button class="nav-item active" onclick="switchView('today')" data-view="today">
-    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-    <span class="nav-label">Today</span>
+  <button class="nav-item active" onclick="switchView('home')" data-view="home">
+    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    <span class="nav-label">Home</span>
   </button>
   <button class="nav-item" onclick="switchView('schedule')" data-view="schedule">
     <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
@@ -652,49 +597,43 @@
 </div>
 
 <script>
-// ‚îÄ‚îÄ‚îÄ Data Layer ‚îÄ‚îÄ‚îÄ
 const STORAGE_KEY = 'prle_data';
-const STAT_KEYS = ['footwork', 'speed', 'strength', 'power', 'durability', 'heart'];
-const STAT_LABELS = { footwork: 'Footwork', speed: 'Speed', strength: 'Strength', power: 'Power', durability: 'Durability', heart: 'Heart' };
+const STAT_KEYS = ['footwork','speed','strength','power','durability','heart'];
+const STAT_LABELS = {footwork:'Footwork',speed:'Speed',strength:'Strength',power:'Power',durability:'Durability',heart:'Heart'};
+const DAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+const DAYS_FULL = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
 
 function loadData() {
   const raw = localStorage.getItem(STORAGE_KEY);
   if (raw) {
     const d = JSON.parse(raw);
-    // Migrate: ensure clients have statsHistory
-    d.clients.forEach(c => { if (!c.statsHistory) c.statsHistory = []; });
+    d.clients.forEach(c => {
+      if (!c.statsHistory) c.statsHistory = [];
+      if (!c.age) c.age = '';
+      if (!c.weight) c.weight = '';
+      if (!c.height) c.height = '';
+      if (!c.photo) c.photo = '';
+    });
     if (!d.sessions) d.sessions = [];
     return d;
   }
   return { clients: [], sessions: [] };
 }
 
-function saveData(data) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-}
+function saveData(d) { localStorage.setItem(STORAGE_KEY, JSON.stringify(d)); }
 
 let data = loadData();
-
-// ‚îÄ‚îÄ‚îÄ Helpers ‚îÄ‚îÄ‚îÄ
-const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-const DAYS_FULL = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+let currentView = 'home';
+let selectedScheduleDay = getTodayDayIndex();
+let weekOffset = 0;
+let homePeriod = 'week';
+let tempPhoto = '';
 
 function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
 function getClient(id) { return data.clients.find(c => c.id === id); }
-
-function getInitials(name) {
-  return name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
-}
-
-function formatTime(t) {
-  const [h, m] = t.split(':');
-  return `${h}:${m}`;
-}
-
-function getTodayDayIndex() {
-  const d = new Date().getDay();
-  return d === 0 ? 6 : d - 1;
-}
+function getInitials(n) { return n.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2); }
+function formatTime(t) { return t; }
+function getTodayDayIndex() { const d = new Date().getDay(); return d === 0 ? 6 : d - 1; }
 
 function getWeekDates(offset = 0) {
   const today = new Date();
@@ -710,416 +649,375 @@ function getWeekDates(offset = 0) {
 
 function dateStr(d) { return d.toISOString().split('T')[0]; }
 function todayStr() { return dateStr(new Date()); }
-
-function formatDate(str) {
-  const d = new Date(str + 'T00:00:00');
-  return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
-}
-
-function formatDateShort(str) {
-  const d = new Date(str + 'T00:00:00');
-  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-}
+function formatDate(s) { return new Date(s+'T00:00:00').toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'}); }
+function formatDateShort(s) { return new Date(s+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}); }
 
 function getSessionsForDate(date) {
-  return data.sessions
-    .filter(s => s.date === date)
-    .sort((a, b) => a.time.localeCompare(b.time));
+  return data.sessions.filter(s => s.date === date).sort((a,b) => a.time.localeCompare(b.time));
 }
 
-function getWeekSessionCount() {
-  const weekDates = getWeekDates(0).map(d => dateStr(d));
-  return data.sessions.filter(s => weekDates.includes(s.date)).length;
+function getSessionsInRange(startDate, endDate) {
+  return data.sessions.filter(s => s.date >= startDate && s.date <= endDate);
 }
 
-function getLatestStats(client) {
-  if (!client.statsHistory || client.statsHistory.length === 0) return null;
-  return client.statsHistory[client.statsHistory.length - 1];
+function getEarnings(sessions) {
+  return sessions.reduce((sum, s) => sum + (s.price || 20), 0);
 }
 
-function getPreviousStats(client) {
-  if (!client.statsHistory || client.statsHistory.length < 2) return null;
-  return client.statsHistory[client.statsHistory.length - 2];
+function getLatestStats(c) { return c.statsHistory?.length ? c.statsHistory[c.statsHistory.length-1] : null; }
+function getPreviousStats(c) { return c.statsHistory?.length >= 2 ? c.statsHistory[c.statsHistory.length-2] : null; }
+
+function getStatColor(v) { return v < 35 ? 'low' : v < 70 ? 'mid' : 'high'; }
+
+function changeText(cur, prev) {
+  if (prev == null) return '';
+  const diff = cur - prev;
+  if (diff === 0) return '<span class="stat-circle-change same">--</span>';
+  const pct = prev > 0 ? Math.round((diff/prev)*100) : (diff > 0 ? 100 : -100);
+  return diff > 0 ? `<span class="stat-circle-change up">+${pct}%</span>` : `<span class="stat-circle-change down">${pct}%</span>`;
 }
 
-function getStatBarClass(val) {
-  if (val < 35) return 'low';
-  if (val < 70) return 'mid';
-  return 'high';
+function avatarHTML(c, size) {
+  if (c.photo) return `<img src="${c.photo}" alt="${c.name}">`;
+  return getInitials(c.name);
 }
 
-function getChangeText(current, previous) {
-  if (previous === null || previous === undefined) return '';
-  const diff = current - previous;
-  if (diff === 0) return '<span class="stat-bar-change same">--</span>';
-  const pct = previous > 0 ? Math.round((diff / previous) * 100) : diff > 0 ? 100 : -100;
-  if (diff > 0) return `<span class="stat-bar-change up">+${pct}%</span>`;
-  return `<span class="stat-bar-change down">${pct}%</span>`;
+function circleStatSVG(val, size) {
+  const r = (size / 2) - 5;
+  const circ = 2 * Math.PI * r;
+  const offset = circ - (val / 100) * circ;
+  const color = getStatColor(val);
+  return `<svg width="${size}" height="${size}" class="stat-circle-svg" viewBox="0 0 ${size} ${size}">
+    <circle cx="${size/2}" cy="${size/2}" r="${r}" class="stat-circle-bg" stroke-width="5"/>
+    <circle cx="${size/2}" cy="${size/2}" r="${r}" class="stat-circle-fill ${color}" stroke-width="5" stroke-dasharray="${circ}" stroke-dashoffset="${offset}"/>
+    <text x="${size/2}" y="${size/2}" class="stat-circle-text" text-anchor="middle" dominant-baseline="central" transform="rotate(90 ${size/2} ${size/2})">${val}</text>
+  </svg>`;
+}
+
+function resizeImage(file, maxSize, cb) {
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const img = new Image();
+    img.onload = function() {
+      const canvas = document.createElement('canvas');
+      let w = img.width, h = img.height;
+      if (w > h) { if (w > maxSize) { h *= maxSize/w; w = maxSize; } }
+      else { if (h > maxSize) { w *= maxSize/h; h = maxSize; } }
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      cb(canvas.toDataURL('image/jpeg', 0.7));
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
 }
 
 // ‚îÄ‚îÄ‚îÄ Navigation ‚îÄ‚îÄ‚îÄ
-let currentView = 'today';
-let selectedScheduleDay = getTodayDayIndex();
-let weekOffset = 0;
-
 function switchView(view) {
   currentView = view;
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  document.getElementById('view' + view.charAt(0).toUpperCase() + view.slice(1)).classList.add('active');
-  const navBtn = document.querySelector(`[data-view="${view}"]`);
-  if (navBtn) navBtn.classList.add('active');
+  const viewId = 'view' + view.charAt(0).toUpperCase() + view.slice(1);
+  document.getElementById(viewId).classList.add('active');
+  const btn = document.querySelector(`[data-view="${view}"]`);
+  if (btn) btn.classList.add('active');
   renderCurrentView();
 }
 
 function renderCurrentView() {
-  switch (currentView) {
-    case 'today': renderToday(); break;
+  switch(currentView) {
+    case 'home': renderHome(); break;
     case 'schedule': renderSchedule(); break;
     case 'clients': renderClients(); break;
   }
 }
 
-// ‚îÄ‚îÄ‚îÄ Today View ‚îÄ‚îÄ‚îÄ
-function renderToday() {
-  const now = new Date();
-  document.getElementById('todayDate').textContent = now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+// ‚îÄ‚îÄ‚îÄ Home View ‚îÄ‚îÄ‚îÄ
+function setPeriod(p) {
+  homePeriod = p;
+  document.querySelectorAll('.period-tab').forEach(t => t.classList.remove('active'));
+  event.target.classList.add('active');
+  renderHome();
+}
 
+function renderHome() {
+  const now = new Date();
   const hour = now.getHours();
-  let greeting = 'Good morning, Luka';
-  if (hour >= 12 && hour < 17) greeting = 'Good afternoon, Luka';
-  else if (hour >= 17) greeting = 'Good evening, Luka';
-  document.getElementById('todayGreeting').textContent = greeting;
+  let g = 'Good morning, Luka';
+  if (hour >= 12 && hour < 17) g = 'Good afternoon, Luka';
+  else if (hour >= 17) g = 'Good evening, Luka';
+  document.getElementById('homeGreeting').textContent = g;
+
+  let startDate, endDate = todayStr();
+  if (homePeriod === 'week') {
+    const wd = getWeekDates(0);
+    startDate = dateStr(wd[0]);
+    endDate = dateStr(wd[6]);
+  } else if (homePeriod === 'month') {
+    const d = new Date(); d.setDate(1);
+    startDate = dateStr(d);
+    const e = new Date(d.getFullYear(), d.getMonth()+1, 0);
+    endDate = dateStr(e);
+  } else {
+    startDate = '2000-01-01';
+    endDate = '2099-12-31';
+  }
+
+  const periodSessions = getSessionsInRange(startDate, endDate);
+  const earnings = getEarnings(periodSessions);
+
+  document.getElementById('homeStats').innerHTML = `
+    <div class="home-stat">
+      <div class="home-stat-num" style="color:var(--red)">${periodSessions.length}</div>
+      <div class="home-stat-label">Sessions</div>
+    </div>
+    <div class="home-stat">
+      <div class="home-stat-num" style="color:var(--green)">${earnings}&euro;</div>
+      <div class="home-stat-label">Earned</div>
+    </div>
+    <div class="home-stat">
+      <div class="home-stat-num" style="color:var(--gold)">${data.clients.length}</div>
+      <div class="home-stat-label">Clients</div>
+    </div>`;
 
   const todaySessions = getSessionsForDate(todayStr());
-
-  document.getElementById('statToday').textContent = todaySessions.length;
-  document.getElementById('statWeek').textContent = getWeekSessionCount();
-  document.getElementById('statClients').textContent = data.clients.length;
-
-  const container = document.getElementById('todaySessions');
+  const container = document.getElementById('homeSessions');
   if (todaySessions.length === 0) {
-    container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">---</div><p>No sessions scheduled for today</p></div>';
+    container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">---</div><p>No sessions today</p></div>';
     return;
   }
 
   container.innerHTML = todaySessions.map(s => {
-    const client = getClient(s.clientId);
-    if (!client) return '';
+    const c = getClient(s.clientId);
+    if (!c) return '';
     return `
       <div class="card" onclick="showClientDetail('${s.clientId}')">
         <div class="card-row">
-          <div>
-            <div class="card-name">${client.name}</div>
-            ${s.notes ? `<div class="card-sub">${s.notes}</div>` : ''}
+          <div style="display:flex;align-items:center;gap:0.6rem">
+            <div class="client-avatar" style="width:34px;height:34px;font-size:0.75rem">${avatarHTML(c)}</div>
+            <div>
+              <div class="card-name">${c.name}</div>
+              ${s.notes ? `<div class="card-sub">${s.notes}</div>` : ''}
+            </div>
           </div>
-          <div class="card-time">${formatTime(s.time)}</div>
+          <div style="text-align:right">
+            <div class="card-time">${formatTime(s.time)}</div>
+            <div class="card-price">${s.price || 20}&euro;</div>
+          </div>
         </div>
       </div>`;
   }).join('');
 }
 
-// ‚îÄ‚îÄ‚îÄ Schedule View ‚îÄ‚îÄ‚îÄ
+// ‚îÄ‚îÄ‚îÄ Schedule ‚îÄ‚îÄ‚îÄ
 function renderSchedule() {
-  const weekDates = getWeekDates(weekOffset);
+  const wd = getWeekDates(weekOffset);
   const todayIdx = weekOffset === 0 ? getTodayDayIndex() : -1;
+  const ls = wd[0].toLocaleDateString('en-US',{month:'short',day:'numeric'});
+  const le = wd[6].toLocaleDateString('en-US',{month:'short',day:'numeric'});
+  const wl = document.getElementById('weekLabel');
+  wl.innerHTML = weekOffset === 0 ? `<span class="cw">This week</span> &middot; ${ls} - ${le}` : `${ls} - ${le}`;
 
-  const weekStart = weekDates[0];
-  const weekEnd = weekDates[6];
-  const labelStart = weekStart.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-  const labelEnd = weekEnd.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-  const weekLabel = document.getElementById('weekLabel');
-  if (weekOffset === 0) {
-    weekLabel.innerHTML = `<span class="current-week">This week</span> &middot; ${labelStart} - ${labelEnd}`;
-  } else {
-    weekLabel.textContent = `${labelStart} - ${labelEnd}`;
-  }
-
-  document.getElementById('dayTabs').innerHTML = DAYS.map((d, i) => {
-    const date = weekDates[i];
-    return `
-      <div class="day-tab ${i === selectedScheduleDay ? 'active' : ''}" style="${i === todayIdx ? 'border-color:var(--gold)' : ''}" onclick="selectDay(${i})">
-        <span class="day-name">${d}</span>
-        <span class="day-num">${date.getDate()}</span>
-      </div>`;
+  document.getElementById('dayTabs').innerHTML = DAYS.map((d,i) => {
+    const date = wd[i];
+    return `<div class="day-tab ${i===selectedScheduleDay?'active':''}" style="${i===todayIdx?'border-color:var(--gold)':''}" onclick="selectDay(${i})">
+      <span class="day-name">${d}</span><span class="day-num">${date.getDate()}</span></div>`;
   }).join('');
 
-  const selectedDate = dateStr(weekDates[selectedScheduleDay]);
-  const sessions = getSessionsForDate(selectedDate);
-  const container = document.getElementById('scheduleSessions');
+  const selDate = dateStr(wd[selectedScheduleDay]);
+  const sessions = getSessionsForDate(selDate);
+  const ct = document.getElementById('scheduleSessions');
 
-  if (sessions.length === 0) {
-    container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">---</div><p>No sessions on ${DAYS_FULL[selectedScheduleDay]}</p></div>`;
+  if (!sessions.length) {
+    ct.innerHTML = `<div class="empty-state"><div class="empty-state-icon">---</div><p>No sessions on ${DAYS_FULL[selectedScheduleDay]}</p></div>`;
     return;
   }
 
-  container.innerHTML = sessions.map(s => {
-    const client = getClient(s.clientId);
-    if (!client) return '';
-    return `
-      <div class="card">
-        <div class="card-row">
-          <div>
-            <div class="card-name">${client.name}</div>
-            ${s.notes ? `<div class="card-sub">${s.notes}</div>` : ''}
-          </div>
-          <div style="display:flex;align-items:center;gap:0.5rem">
-            <div class="card-time">${formatTime(s.time)}</div>
-            <button class="btn btn-danger btn-icon btn-small" onclick="event.stopPropagation();deleteSession('${s.id}')" title="Remove">x</button>
-          </div>
-        </div>
-      </div>`;
+  ct.innerHTML = sessions.map(s => {
+    const c = getClient(s.clientId);
+    if (!c) return '';
+    return `<div class="card"><div class="card-row">
+      <div style="display:flex;align-items:center;gap:0.6rem">
+        <div class="client-avatar" style="width:34px;height:34px;font-size:0.75rem">${avatarHTML(c)}</div>
+        <div><div class="card-name">${c.name}</div>${s.notes?`<div class="card-sub">${s.notes}</div>`:''}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:0.4rem">
+        <div style="text-align:right"><div class="card-time">${formatTime(s.time)}</div><div class="card-price">${s.price||20}&euro;</div></div>
+        <button class="btn btn-danger btn-icon btn-small" onclick="event.stopPropagation();deleteSession('${s.id}')" title="Remove">x</button>
+      </div>
+    </div></div>`;
   }).join('');
 }
 
 function selectDay(i) { selectedScheduleDay = i; renderSchedule(); }
+function changeWeek(dir) { weekOffset += dir; selectedScheduleDay = weekOffset === 0 ? getTodayDayIndex() : 0; renderSchedule(); }
 
-function changeWeek(dir) {
-  weekOffset += dir;
-  selectedScheduleDay = weekOffset === 0 ? getTodayDayIndex() : 0;
-  renderSchedule();
-}
-
-// ‚îÄ‚îÄ‚îÄ Clients View ‚îÄ‚îÄ‚îÄ
+// ‚îÄ‚îÄ‚îÄ Clients ‚îÄ‚îÄ‚îÄ
 function renderClients() {
-  const query = (document.getElementById('clientSearch')?.value || '').toLowerCase();
-  const filtered = data.clients
-    .filter(c => c.name.toLowerCase().includes(query))
-    .sort((a, b) => a.name.localeCompare(b.name));
+  const q = (document.getElementById('clientSearch')?.value || '').toLowerCase();
+  const filtered = data.clients.filter(c => c.name.toLowerCase().includes(q)).sort((a,b) => a.name.localeCompare(b.name));
+  const ct = document.getElementById('clientList');
 
-  const container = document.getElementById('clientList');
-  if (filtered.length === 0) {
-    container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">---</div><p>${data.clients.length === 0 ? 'Add your first client' : 'No matches'}</p></div>`;
+  if (!filtered.length) {
+    ct.innerHTML = `<div class="empty-state"><div class="empty-state-icon">---</div><p>${data.clients.length===0?'Add your first client':'No matches'}</p></div>`;
     return;
   }
 
-  container.innerHTML = filtered.map(c => {
+  ct.innerHTML = filtered.map(c => {
     const latest = getLatestStats(c);
-    const avg = latest ? Math.round(STAT_KEYS.reduce((sum, k) => sum + (latest[k] || 0), 0) / STAT_KEYS.length) : '--';
-    return `
-      <div class="card" onclick="showClientDetail('${c.id}')">
-        <div class="card-row">
-          <div class="client-avatar">${getInitials(c.name)}</div>
-          <div class="client-info">
-            <div class="card-name">${c.name}</div>
-            <div class="client-phone">${c.phone || 'No phone'}</div>
-          </div>
-          <div style="text-align:right">
-            <div style="font-size:1.1rem;font-weight:700;color:${latest ? 'var(--gold)' : 'var(--text-faint)'}">${avg}</div>
-            <div style="font-size:0.65rem;color:var(--text-faint)">avg</div>
-          </div>
-        </div>
-      </div>`;
+    const avg = latest ? Math.round(STAT_KEYS.reduce((s,k) => s + (latest[k]||0), 0)/STAT_KEYS.length) : '--';
+    return `<div class="card" onclick="showClientDetail('${c.id}')"><div class="card-row">
+      <div class="client-avatar">${avatarHTML(c)}</div>
+      <div class="client-info"><div class="card-name">${c.name}</div><div class="client-phone">${c.phone||'No phone'}</div></div>
+      <div style="text-align:right"><div style="font-size:1rem;font-weight:700;color:${latest?'var(--gold)':'var(--text-faint)'}">${avg}</div><div style="font-size:0.6rem;color:var(--text-faint)">avg</div></div>
+    </div></div>`;
   }).join('');
 }
 
 // ‚îÄ‚îÄ‚îÄ Client Detail ‚îÄ‚îÄ‚îÄ
 function showClientDetail(clientId) {
-  const client = getClient(clientId);
-  if (!client) return;
+  const c = getClient(clientId);
+  if (!c) return;
 
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.getElementById('viewClientDetail').classList.add('active');
 
   const sessions = data.sessions.filter(s => s.clientId === clientId);
-  const upcomingSessions = sessions
-    .filter(s => s.date >= todayStr())
-    .sort((a, b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time));
-  const scheduleInfo = upcomingSessions.length > 0
-    ? upcomingSessions.slice(0, 5).map(s => `${formatDate(s.date)} ${formatTime(s.time)}`).join(', ')
-    : 'No upcoming sessions';
+  const upcoming = sessions.filter(s => s.date >= todayStr()).sort((a,b) => a.date.localeCompare(b.date)||a.time.localeCompare(b.time));
+  const schedInfo = upcoming.length ? upcoming.slice(0,4).map(s => `${formatDate(s.date)} ${formatTime(s.time)}`).join(', ') : 'No upcoming sessions';
 
-  const latest = getLatestStats(client);
-  const previous = getPreviousStats(client);
+  const meta = [c.age ? c.age + ' yrs' : '', c.weight ? c.weight + ' kg' : '', c.height ? c.height + ' cm' : ''].filter(Boolean).join(' / ');
 
-  let statsHTML = '';
+  const latest = getLatestStats(c);
+  const prev = getPreviousStats(c);
+
+  let statsHTML;
   if (latest) {
     statsHTML = `
       <div class="section-header">
         <div class="section-title">Stats</div>
-        <button class="btn btn-primary btn-small" onclick="openModal('stats', '${client.id}')">Update</button>
+        <button class="btn btn-primary btn-small" onclick="openModal('stats','${c.id}')">Update</button>
       </div>
-      ${previous ? `<div style="font-size:0.72rem;color:var(--text-faint);margin-bottom:0.6rem">Last updated ${formatDateShort(latest.date)} &middot; vs ${formatDateShort(previous.date)}</div>` :
-        `<div style="font-size:0.72rem;color:var(--text-faint);margin-bottom:0.6rem">Set on ${formatDateShort(latest.date)}</div>`}
-      <div class="stat-bars">
+      ${prev ? `<div style="font-size:0.68rem;color:var(--text-faint);margin-bottom:0.5rem">Updated ${formatDateShort(latest.date)} vs ${formatDateShort(prev.date)}</div>` :
+        `<div style="font-size:0.68rem;color:var(--text-faint);margin-bottom:0.5rem">Set on ${formatDateShort(latest.date)}</div>`}
+      <div class="stat-circles">
         ${STAT_KEYS.map(k => {
-          const val = latest[k] || 0;
-          const prev = previous ? previous[k] : null;
-          return `
-            <div class="stat-bar-item">
-              <div class="stat-bar-header">
-                <span class="stat-bar-name">${STAT_LABELS[k]}</span>
-                <span><span class="stat-bar-value">${val}</span>${getChangeText(val, prev)}</span>
-              </div>
-              <div class="stat-bar-track">
-                <div class="stat-bar-fill ${getStatBarClass(val)}" style="width:${val}%"></div>
-              </div>
-            </div>`;
+          const v = latest[k]||0;
+          const p = prev ? prev[k] : null;
+          return `<div class="stat-circle-item">
+            ${circleStatSVG(v, 76)}
+            <div class="stat-circle-label">${STAT_LABELS[k]}</div>
+            ${changeText(v, p)}
+          </div>`;
         }).join('')}
       </div>`;
   } else {
-    statsHTML = `
-      <div class="section-header">
-        <div class="section-title">Stats</div>
-      </div>
-      <div class="empty-state" style="padding:1.5rem">
-        <p>No stats recorded yet</p>
-        <button class="btn btn-primary btn-small" style="margin-top:0.8rem" onclick="openModal('stats', '${client.id}')">Set Initial Stats</button>
-      </div>`;
+    statsHTML = `<div class="section-header"><div class="section-title">Stats</div></div>
+      <div class="empty-state" style="padding:1.2rem"><p>No stats yet</p>
+      <button class="btn btn-primary btn-small" style="margin-top:0.6rem" onclick="openModal('stats','${c.id}')">Set Initial Stats</button></div>`;
   }
 
-  // Stats history
-  let historyHTML = '';
-  if (client.statsHistory && client.statsHistory.length > 1) {
-    historyHTML = `
-      <div class="section-header">
-        <div class="section-title">Progress History</div>
-      </div>
-      <div class="detail-notes">
-        ${[...client.statsHistory].reverse().map(entry => `
-          <div class="stat-history-entry">
-            <div class="stat-history-date">${formatDateShort(entry.date)}</div>
-            <div class="stat-history-values">
-              ${STAT_KEYS.map(k => `<span>${STAT_LABELS[k].slice(0,3)}: <strong>${entry[k]}</strong></span>`).join('')}
-            </div>
-          </div>`).join('')}
-      </div>`;
+  let histHTML = '';
+  if (c.statsHistory?.length > 1) {
+    histHTML = `<div class="section-header"><div class="section-title">Progress History</div></div>
+      <div class="detail-notes">${[...c.statsHistory].reverse().map(e => `
+        <div class="stat-history-entry"><div class="stat-history-date">${formatDateShort(e.date)}</div>
+        <div class="stat-history-values">${STAT_KEYS.map(k => `<span>${STAT_LABELS[k].slice(0,3)}: <strong>${e[k]}</strong></span>`).join('')}</div></div>`).join('')}</div>`;
   }
 
   document.getElementById('clientDetailContent').innerHTML = `
     <div class="detail-header">
-      <button class="detail-back" onclick="switchView('clients')">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-      </button>
-      <div class="detail-avatar">${getInitials(client.name)}</div>
+      <button class="detail-back" onclick="switchView('clients')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
+      <div class="detail-avatar">${avatarHTML(c)}</div>
       <div>
-        <div class="detail-name">${client.name}</div>
-        <div class="detail-phone">${client.phone || 'No phone'}</div>
+        <div class="detail-name">${c.name}</div>
+        <div class="detail-phone">${c.phone||'No phone'}</div>
+        ${meta ? `<div class="detail-meta">${meta}</div>` : ''}
       </div>
     </div>
-
     <div class="detail-actions">
-      <button class="btn btn-secondary btn-small" onclick="openModal('client', '${client.id}')">Edit</button>
-      <button class="btn btn-danger btn-small" onclick="confirmDeleteClient('${client.id}')">Delete</button>
-      ${client.phone ? `<a href="tel:${client.phone}" class="btn btn-success btn-small" style="text-decoration:none">Call</a>` : ''}
+      <button class="btn btn-secondary btn-small" onclick="openModal('client','${c.id}')">Edit</button>
+      <button class="btn btn-danger btn-small" onclick="confirmDeleteClient('${c.id}')">Delete</button>
+      ${c.phone?`<a href="tel:${c.phone}" class="btn btn-success btn-small" style="text-decoration:none">Call</a>`:''}
     </div>
-
-    ${client.notes ? `<div class="detail-notes"><div class="detail-notes-label">Notes</div><div class="detail-notes-text">${client.notes}</div></div>` : ''}
-
-    <div class="detail-notes">
-      <div class="detail-notes-label">Upcoming Sessions</div>
-      <div class="detail-notes-text">${scheduleInfo}</div>
-    </div>
-
+    ${c.notes?`<div class="detail-notes"><div class="detail-notes-label">Notes</div><div class="detail-notes-text">${c.notes}</div></div>`:''}
+    <div class="detail-notes"><div class="detail-notes-label">Upcoming Sessions</div><div class="detail-notes-text">${schedInfo}</div></div>
     ${statsHTML}
-    ${historyHTML}
-  `;
+    ${histHTML}`;
 }
 
-// ‚îÄ‚îÄ‚îÄ Modal System ‚îÄ‚îÄ‚îÄ
+// ‚îÄ‚îÄ‚îÄ Modals ‚îÄ‚îÄ‚îÄ
 function openModal(type, editId) {
-  const overlay = document.getElementById('modalOverlay');
-  const content = document.getElementById('modalContent');
+  const ov = document.getElementById('modalOverlay');
+  const ct = document.getElementById('modalContent');
+  tempPhoto = '';
 
   if (type === 'client') {
     const c = editId ? getClient(editId) : null;
-    content.innerHTML = `
-      <div class="modal-header">
-        <div class="modal-title">${c ? 'Edit Client' : 'New Client'}</div>
-        <button class="modal-close" onclick="closeModal()">&times;</button>
+    tempPhoto = c?.photo || '';
+    ct.innerHTML = `
+      <div class="modal-header"><div class="modal-title">${c?'Edit Client':'New Client'}</div><button class="modal-close" onclick="closeModal()">&times;</button></div>
+      <div class="photo-upload" onclick="document.getElementById('fPhoto').click()">
+        ${tempPhoto ? `<img src="${tempPhoto}" id="photoPreview">` : '<div class="photo-upload-label">Add<br>Photo</div>'}
+        <input type="file" id="fPhoto" accept="image/*" onchange="handlePhoto(this)">
       </div>
-      <div class="form-group">
-        <label class="form-label">Name</label>
-        <input type="text" class="form-input" id="fClientName" value="${c ? c.name : ''}" placeholder="Client name">
+      <div class="form-group"><label class="form-label">Name</label><input type="text" class="form-input" id="fClientName" value="${c?c.name:''}" placeholder="Client name"></div>
+      <div class="form-group"><label class="form-label">Phone</label><input type="tel" class="form-input" id="fClientPhone" value="${c?c.phone||'':''}" placeholder="Phone number"></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Age</label><input type="number" class="form-input" id="fClientAge" value="${c?c.age||'':''}" placeholder="25" inputmode="numeric"></div>
+        <div class="form-group"><label class="form-label">Weight (kg)</label><input type="number" class="form-input" id="fClientWeight" value="${c?c.weight||'':''}" placeholder="75" inputmode="decimal"></div>
+        <div class="form-group"><label class="form-label">Height (cm)</label><input type="number" class="form-input" id="fClientHeight" value="${c?c.height||'':''}" placeholder="180" inputmode="numeric"></div>
       </div>
-      <div class="form-group">
-        <label class="form-label">Phone</label>
-        <input type="tel" class="form-input" id="fClientPhone" value="${c ? c.phone || '' : ''}" placeholder="Phone number">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Notes</label>
-        <textarea class="form-textarea" id="fClientNotes" placeholder="Goals, level, injuries...">${c ? c.notes || '' : ''}</textarea>
-      </div>
-      <div class="form-actions">
-        <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
-        <button class="btn btn-primary" onclick="saveClient('${editId || ''}')">${c ? 'Save' : 'Add Client'}</button>
-      </div>`;
+      <div class="form-group"><label class="form-label">Notes</label><textarea class="form-textarea" id="fClientNotes" placeholder="Goals, level, injuries...">${c?c.notes||'':''}</textarea></div>
+      <div class="form-actions"><button class="btn btn-secondary" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="saveClient('${editId||''}')">${c?'Save':'Add Client'}</button></div>`;
   }
 
   else if (type === 'session') {
-    if (data.clients.length === 0) {
-      content.innerHTML = `
-        <div class="modal-header">
-          <div class="modal-title">New Session</div>
-          <button class="modal-close" onclick="closeModal()">&times;</button>
-        </div>
-        <div class="empty-state"><p>Add a client first before scheduling sessions.</p></div>
-        <div class="form-actions">
-          <button class="btn btn-primary" onclick="closeModal();switchView('clients');openModal('client')">Add Client</button>
-        </div>`;
+    if (!data.clients.length) {
+      ct.innerHTML = `<div class="modal-header"><div class="modal-title">New Session</div><button class="modal-close" onclick="closeModal()">&times;</button></div>
+        <div class="empty-state"><p>Add a client first.</p></div>
+        <div class="form-actions"><button class="btn btn-primary" onclick="closeModal();switchView('clients');openModal('client')">Add Client</button></div>`;
     } else {
-      const clientOptions = data.clients.sort((a, b) => a.name.localeCompare(b.name)).map(c => `<option value="${c.id}">${c.name}</option>`).join('');
-      const weekDates = getWeekDates(weekOffset);
-      const defaultDate = dateStr(weekDates[selectedScheduleDay]);
-      content.innerHTML = `
-        <div class="modal-header">
-          <div class="modal-title">New Session</div>
-          <button class="modal-close" onclick="closeModal()">&times;</button>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Client</label>
-          <select class="form-select" id="fSessionClient">${clientOptions}</select>
-        </div>
+      const opts = data.clients.sort((a,b)=>a.name.localeCompare(b.name)).map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+      const wd = getWeekDates(weekOffset);
+      const dd = dateStr(wd[selectedScheduleDay]);
+      ct.innerHTML = `
+        <div class="modal-header"><div class="modal-title">New Session</div><button class="modal-close" onclick="closeModal()">&times;</button></div>
+        <div class="form-group"><label class="form-label">Client</label><select class="form-select" id="fSessionClient">${opts}</select></div>
         <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">Date</label>
-            <input type="date" class="form-input" id="fSessionDate" value="${defaultDate}">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Time</label>
-            <input type="time" class="form-input" id="fSessionTime" value="10:00">
-          </div>
+          <div class="form-group"><label class="form-label">Date</label><input type="date" class="form-input" id="fSessionDate" value="${dd}"></div>
+          <div class="form-group"><label class="form-label">Time</label><input type="time" class="form-input" id="fSessionTime" value="10:00"></div>
         </div>
-        <div class="form-group">
-          <label class="form-label">Notes (optional)</label>
-          <textarea class="form-textarea" id="fSessionNotes" placeholder="Session details, focus areas..."></textarea>
-        </div>
-        <div class="form-actions">
-          <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
-          <button class="btn btn-primary" onclick="saveSession()">Add Session</button>
-        </div>`;
+        <div class="form-group"><label class="form-label">Price (&euro;)</label><input type="number" class="form-input" id="fSessionPrice" value="20" inputmode="decimal"></div>
+        <div class="form-group"><label class="form-label">Notes (optional)</label><textarea class="form-textarea" id="fSessionNotes" placeholder="Session details..."></textarea></div>
+        <div class="form-actions"><button class="btn btn-secondary" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="saveSession()">Add Session</button></div>`;
     }
   }
 
   else if (type === 'stats') {
-    const client = getClient(editId);
-    if (!client) return;
-    const latest = getLatestStats(client);
-    const vals = {};
-    STAT_KEYS.forEach(k => { vals[k] = latest ? (latest[k] || 50) : 50; });
-
-    content.innerHTML = `
-      <div class="modal-header">
-        <div class="modal-title">${latest ? 'Update' : 'Set'} Stats - ${client.name}</div>
-        <button class="modal-close" onclick="closeModal()">&times;</button>
-      </div>
-      ${STAT_KEYS.map(k => `
-        <div class="slider-group">
-          <div class="slider-header">
-            <span class="slider-label">${STAT_LABELS[k]}</span>
-            <span class="slider-value" id="sv_${k}">${vals[k]}</span>
-          </div>
-          <input type="range" min="1" max="100" value="${vals[k]}" id="fs_${k}" oninput="document.getElementById('sv_${k}').textContent=this.value">
-        </div>`).join('')}
-      <div class="form-actions">
-        <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
-        <button class="btn btn-primary" onclick="saveStats('${editId}')">${latest ? 'Update Stats' : 'Save Stats'}</button>
-      </div>`;
+    const c = getClient(editId);
+    if (!c) return;
+    const latest = getLatestStats(c);
+    const vals = {}; STAT_KEYS.forEach(k => { vals[k] = latest ? (latest[k]||50) : 50; });
+    ct.innerHTML = `
+      <div class="modal-header"><div class="modal-title">${latest?'Update':'Set'} Stats</div><button class="modal-close" onclick="closeModal()">&times;</button></div>
+      ${STAT_KEYS.map(k => `<div class="slider-group"><div class="slider-header"><span class="slider-label">${STAT_LABELS[k]}</span><span class="slider-value" id="sv_${k}">${vals[k]}</span></div>
+        <input type="range" min="1" max="100" value="${vals[k]}" id="fs_${k}" oninput="document.getElementById('sv_${k}').textContent=this.value"></div>`).join('')}
+      <div class="form-actions"><button class="btn btn-secondary" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="saveStats('${editId}')">${latest?'Update':'Save'}</button></div>`;
   }
 
-  overlay.classList.add('open');
-  const firstInput = content.querySelector('input, select, textarea');
-  if (firstInput) setTimeout(() => firstInput.focus(), 100);
+  ov.classList.add('open');
+  const fi = ct.querySelector('input[type="text"], input[type="tel"], select');
+  if (fi) setTimeout(() => fi.focus(), 100);
+}
+
+function handlePhoto(input) {
+  if (!input.files[0]) return;
+  resizeImage(input.files[0], 120, function(dataUrl) {
+    tempPhoto = dataUrl;
+    const preview = document.querySelector('.photo-upload');
+    preview.innerHTML = `<img src="${dataUrl}" id="photoPreview"><input type="file" id="fPhoto" accept="image/*" onchange="handlePhoto(this)">`;
+  });
 }
 
 function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); }
@@ -1130,18 +1028,18 @@ function saveClient(editId) {
   const name = document.getElementById('fClientName').value.trim();
   if (!name) return;
   const phone = document.getElementById('fClientPhone').value.trim();
+  const age = document.getElementById('fClientAge').value.trim();
+  const weight = document.getElementById('fClientWeight').value.trim();
+  const height = document.getElementById('fClientHeight').value.trim();
   const notes = document.getElementById('fClientNotes').value.trim();
 
   if (editId) {
     const c = getClient(editId);
-    if (c) { c.name = name; c.phone = phone; c.notes = notes; }
+    if (c) { c.name=name; c.phone=phone; c.age=age; c.weight=weight; c.height=height; c.notes=notes; c.photo=tempPhoto; }
   } else {
-    data.clients.push({ id: uid(), name, phone, notes, createdAt: todayStr(), statsHistory: [] });
+    data.clients.push({ id: uid(), name, phone, age, weight, height, notes, photo: tempPhoto, createdAt: todayStr(), statsHistory: [] });
   }
-
-  saveData(data);
-  closeModal();
-  renderCurrentView();
+  saveData(data); closeModal(); renderCurrentView();
   if (editId) showClientDetail(editId);
 }
 
@@ -1149,86 +1047,58 @@ function saveSession() {
   const clientId = document.getElementById('fSessionClient').value;
   const date = document.getElementById('fSessionDate').value;
   const time = document.getElementById('fSessionTime').value;
+  const price = parseFloat(document.getElementById('fSessionPrice').value) || 20;
   const notes = document.getElementById('fSessionNotes').value.trim();
-
   if (!clientId || !date || !time) return;
 
-  data.sessions.push({ id: uid(), clientId, date, time, notes });
-  saveData(data);
-  closeModal();
+  data.sessions.push({ id: uid(), clientId, date, time, price, notes });
+  saveData(data); closeModal();
 
-  const sessionDate = new Date(date + 'T00:00:00');
-  const sessionDayIdx = sessionDate.getDay() === 0 ? 6 : sessionDate.getDay() - 1;
+  const sd = new Date(date+'T00:00:00');
+  const sdi = sd.getDay()===0?6:sd.getDay()-1;
   const today = new Date();
-  const todayDayIdx = getTodayDayIndex();
-  const todayMonday = new Date(today);
-  todayMonday.setDate(today.getDate() - todayDayIdx);
-  todayMonday.setHours(0,0,0,0);
-  const sessionMonday = new Date(sessionDate);
-  sessionMonday.setDate(sessionDate.getDate() - sessionDayIdx);
-  sessionMonday.setHours(0,0,0,0);
-  weekOffset = Math.round((sessionMonday - todayMonday) / (7 * 86400000));
-  selectedScheduleDay = sessionDayIdx;
+  const tdi = getTodayDayIndex();
+  const tMon = new Date(today); tMon.setDate(today.getDate()-tdi); tMon.setHours(0,0,0,0);
+  const sMon = new Date(sd); sMon.setDate(sd.getDate()-sdi); sMon.setHours(0,0,0,0);
+  weekOffset = Math.round((sMon-tMon)/(7*86400000));
+  selectedScheduleDay = sdi;
   renderCurrentView();
 }
 
 function saveStats(clientId) {
-  const client = getClient(clientId);
-  if (!client) return;
-
+  const c = getClient(clientId);
+  if (!c) return;
   const entry = { date: todayStr() };
-  STAT_KEYS.forEach(k => {
-    entry[k] = parseInt(document.getElementById('fs_' + k).value);
-  });
-
-  if (!client.statsHistory) client.statsHistory = [];
-  client.statsHistory.push(entry);
-  saveData(data);
-  closeModal();
-  showClientDetail(clientId);
+  STAT_KEYS.forEach(k => { entry[k] = parseInt(document.getElementById('fs_'+k).value); });
+  if (!c.statsHistory) c.statsHistory = [];
+  c.statsHistory.push(entry);
+  saveData(data); closeModal(); showClientDetail(clientId);
 }
 
 function deleteSession(id) {
   data.sessions = data.sessions.filter(s => s.id !== id);
-  saveData(data);
-  renderCurrentView();
+  saveData(data); renderCurrentView();
 }
 
 function confirmDeleteClient(id) {
-  const client = getClient(id);
-  if (!client) return;
-  const content = document.getElementById('modalContent');
-  content.innerHTML = `
-    <div class="modal-header">
-      <div class="modal-title">Delete Client</div>
-      <button class="modal-close" onclick="closeModal()">&times;</button>
-    </div>
-    <div class="confirm-dialog">
-      <p>Remove <strong>${client.name}</strong> and all their sessions and stats?</p>
-      <div class="form-actions">
-        <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
-        <button class="btn btn-danger" onclick="deleteClient('${id}')">Delete</button>
-      </div>
-    </div>`;
+  const c = getClient(id);
+  if (!c) return;
+  document.getElementById('modalContent').innerHTML = `
+    <div class="modal-header"><div class="modal-title">Delete Client</div><button class="modal-close" onclick="closeModal()">&times;</button></div>
+    <div class="confirm-dialog"><p>Remove <strong>${c.name}</strong> and all their data?</p>
+    <div class="form-actions"><button class="btn btn-secondary" onclick="closeModal()">Cancel</button><button class="btn btn-danger" onclick="deleteClient('${id}')">Delete</button></div></div>`;
   document.getElementById('modalOverlay').classList.add('open');
 }
 
 function deleteClient(id) {
   data.clients = data.clients.filter(c => c.id !== id);
   data.sessions = data.sessions.filter(s => s.clientId !== id);
-  saveData(data);
-  closeModal();
-  switchView('clients');
+  saveData(data); closeModal(); switchView('clients');
 }
 
 // ‚îÄ‚îÄ‚îÄ Init ‚îÄ‚îÄ‚îÄ
-function init() {
-  const now = new Date();
-  document.getElementById('topDate').textContent = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-  renderToday();
-}
-
-init();
+document.getElementById('topDate').textContent = new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+renderHome();
 </script>
 </body>
 </html>
