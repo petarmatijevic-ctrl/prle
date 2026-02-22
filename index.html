@@ -204,7 +204,7 @@
       <div class="period-tabs"><button class="period-tab active" onclick="setPeriod('week')">This Week</button><button class="period-tab" onclick="setPeriod('month')">This Month</button><button class="period-tab" onclick="setPeriod('custom')">Custom</button></div>
       <div class="date-range" id="dateRange" style="display:none"><input type="date" class="form-input" id="rangeFrom" onchange="renderHome()"><span style="color:var(--text-faint);font-size:0.8rem">to</span><input type="date" class="form-input" id="rangeTo" onchange="renderHome()"></div>
       <div class="home-stats" id="homeStats"></div>
-      <div class="section-header"><div class="section-title">Today's Sessions</div></div>
+      <div class="section-header"><div class="section-title">Upcoming Sessions</div></div>
       <div id="homeSessions"></div>
     </div>
     <div class="view" id="viewSchedule">
@@ -254,7 +254,48 @@ function getStatColor(v){return v<35?'low':v<70?'mid':'high';}
 function avatarHTML(c){return c.photo?`<img src="${c.photo}" alt="${c.name}">`:getInitials(c.name);}
 function circleStatSVG(v,sz){const r=(sz/2)-5,ci=2*Math.PI*r,off=ci-(v/100)*ci,col=getStatColor(v);return`<svg width="${sz}" height="${sz}" class="stat-circle-svg" viewBox="0 0 ${sz} ${sz}"><circle cx="${sz/2}" cy="${sz/2}" r="${r}" class="stat-circle-bg" stroke-width="5"/><circle cx="${sz/2}" cy="${sz/2}" r="${r}" class="stat-circle-fill ${col}" stroke-width="5" stroke-dasharray="${ci}" stroke-dashoffset="${off}"/><text x="${sz/2}" y="${sz/2}" class="stat-circle-text" text-anchor="middle" dominant-baseline="central" transform="rotate(90 ${sz/2} ${sz/2})">${v}</text></svg>`;}
 function changeText(cur,prev){if(prev==null)return'';const d=cur-prev;if(d===0)return'<span class="stat-circle-change same">--</span>';const p=prev>0?Math.round((d/prev)*100):(d>0?100:-100);return d>0?`<span class="stat-circle-change up">+${p}%</span>`:`<span class="stat-circle-change down">${p}%</span>`;}
-function resizeImage(file,mx,cb){const r=new FileReader();r.onload=function(e){const img=new Image();img.onload=function(){const cv=document.createElement('canvas');let w=img.width,h=img.height;if(w>h){if(w>mx){h*=mx/w;w=mx;}}else{if(h>mx){w*=mx/h;h=mx;}}cv.width=w;cv.height=h;cv.getContext('2d').drawImage(img,0,0,w,h);cb(cv.toDataURL('image/jpeg',0.7));};img.src=e.target.result;};r.readAsDataURL(file);}
+function resizeImage(file,mx,cb){const r=new FileReader();r.onload=function(e){const img=new Image();img.onload=function(){const cv=document.createElement('canvas');let w=img.width,h=img.height;if(w>h){if(w>mx){h*=mx/w;w=mx;}}else{if(h>mx){w*=mx/h;h=mx;}}cv.width=w;cv.height=h;cv.getContext('2d').drawImage(img,0,0,w,h);cb(cv.toDataURL('image/jpeg',0.85));};img.src=e.target.result;};r.readAsDataURL(file);}
+
+// PHOTO CROP
+let cropImg=null,cropZoom=1,cropX=0,cropY=0,cropDrag=false,cropLastT=null,cropCb=null;
+function openCropModal(file,callback){
+  cropCb=callback;cropZoom=1;cropX=0;cropY=0;
+  const r=new FileReader();r.onload=function(e){
+    cropImg=new Image();cropImg.onload=function(){
+      const ov=document.getElementById('modalOverlay'),ct=document.getElementById('modalContent');
+      ct.innerHTML=`<div class="modal-header"><div class="modal-title">Crop Photo</div><button class="modal-close" onclick="closeModal()">&times;</button></div>
+        <div style="display:flex;justify-content:center;margin-bottom:0.8rem"><div id="cropArea" style="width:220px;height:220px;border-radius:50%;overflow:hidden;border:3px solid var(--red);position:relative;touch-action:none;cursor:grab"><canvas id="cropCanvas" width="220" height="220"></canvas></div></div>
+        <div style="display:flex;align-items:center;gap:0.6rem;margin-bottom:1rem;padding:0 1rem"><span style="font-size:0.75rem;color:var(--text-dim)">-</span><input type="range" id="cropZoomSlider" min="100" max="300" value="100" oninput="setCropZoom(this.value)" style="flex:1"><span style="font-size:0.75rem;color:var(--text-dim)">+</span></div>
+        <div style="font-size:0.7rem;color:var(--text-faint);text-align:center;margin-bottom:0.8rem">Drag to reposition, slider to zoom</div>
+        <div class="form-actions"><button class="btn btn-secondary" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="applyCrop()">Done</button></div>`;
+      ov.classList.add('open');
+      const area=document.getElementById('cropArea');
+      area.addEventListener('mousedown',cropStart);area.addEventListener('mousemove',cropMove);area.addEventListener('mouseup',cropEnd);area.addEventListener('mouseleave',cropEnd);
+      area.addEventListener('touchstart',cropTouchStart,{passive:false});area.addEventListener('touchmove',cropTouchMove,{passive:false});area.addEventListener('touchend',cropEnd);
+      drawCrop();
+    };cropImg.src=e.target.result;
+  };r.readAsDataURL(file);
+}
+function setCropZoom(v){cropZoom=v/100;drawCrop();}
+function drawCrop(){
+  const cv=document.getElementById('cropCanvas');if(!cv||!cropImg)return;const ctx=cv.getContext('2d'),sz=220;
+  ctx.clearRect(0,0,sz,sz);
+  const scale=Math.max(sz/cropImg.width,sz/cropImg.height)*cropZoom;
+  const dw=cropImg.width*scale,dh=cropImg.height*scale;
+  const dx=(sz-dw)/2+cropX,dy=(sz-dh)/2+cropY;
+  ctx.drawImage(cropImg,dx,dy,dw,dh);
+}
+function cropStart(e){cropDrag=true;cropLastT={x:e.clientX,y:e.clientY};}
+function cropMove(e){if(!cropDrag||!cropLastT)return;cropX+=e.clientX-cropLastT.x;cropY+=e.clientY-cropLastT.y;cropLastT={x:e.clientX,y:e.clientY};drawCrop();}
+function cropEnd(){cropDrag=false;cropLastT=null;}
+function cropTouchStart(e){e.preventDefault();if(e.touches.length===1){cropDrag=true;cropLastT={x:e.touches[0].clientX,y:e.touches[0].clientY};}}
+function cropTouchMove(e){e.preventDefault();if(!cropDrag||!cropLastT||e.touches.length!==1)return;cropX+=e.touches[0].clientX-cropLastT.x;cropY+=e.touches[0].clientY-cropLastT.y;cropLastT={x:e.touches[0].clientX,y:e.touches[0].clientY};drawCrop();}
+function applyCrop(){
+  const cv=document.getElementById('cropCanvas');if(!cv)return;
+  const out=document.createElement('canvas');out.width=300;out.height=300;
+  const octx=out.getContext('2d');octx.drawImage(cv,0,0,220,220,0,0,300,300);
+  const url=out.toDataURL('image/jpeg',0.85);closeModal();if(cropCb)cropCb(url);
+}
 function getBaseUrl(){return window.location.origin+window.location.pathname;}
 
 // STATE
@@ -376,9 +417,10 @@ function cRenderProfile(){
     <div class="profile-save-row"><button class="btn btn-primary btn-small" onclick="cSaveProfile()">Save Profile</button></div>
     ${statsHTML}${histHTML}`;
 }
-function cHandlePhoto(input){if(!input.files[0])return;resizeImage(input.files[0],120,async function(url){try{await db.collection('clients').doc(cClient.id).update({photo:url});cRenderProfile();}catch(e){console.error(e);}});}
+function cHandlePhoto(input){if(!input.files[0])return;openCropModal(input.files[0],async function(url){try{await db.collection('clients').doc(cClient.id).update({photo:url});cRenderProfile();}catch(e){console.error(e);}});}
 async function cSaveProfile(){const age=document.getElementById('cAge').value.trim(),weight=document.getElementById('cWeight').value.trim(),height=document.getElementById('cHeight').value.trim();try{await db.collection('clients').doc(cClient.id).update({age,weight,height});alert('Profile saved!');}catch(e){alert('Error saving.');}}
 function toggleHistory(){document.getElementById('histBody').classList.toggle('open');document.getElementById('histIcon').classList.toggle('open');}
+function toggleUpcoming(){const b=document.getElementById('upcomingBody'),i=document.getElementById('upcomingIcon');if(b)b.classList.toggle('open');if(i)i.classList.toggle('open');}
 
 // ADMIN: NAVIGATION
 function switchView(view){currentView=view;document.querySelectorAll('#appAdmin .view').forEach(v=>v.classList.remove('active'));document.querySelectorAll('#appAdmin .nav-item').forEach(n=>n.classList.remove('active'));document.getElementById('view'+view.charAt(0).toUpperCase()+view.slice(1)).classList.add('active');const btn=document.querySelector(`[data-view="${view}"]`);if(btn)btn.classList.add('active');renderCurrentView();}
@@ -399,9 +441,11 @@ function renderHome(){
   else{startDate=document.getElementById('rangeFrom')?.value||'2000-01-01';endDate=document.getElementById('rangeTo')?.value||'2099-12-31';}
   const ps=allSessions.filter(s=>s.date>=startDate&&s.date<=endDate),earn=ps.reduce((sum,s)=>sum+(s.price||20),0);
   document.getElementById('homeStats').innerHTML=`<div class="home-stat"><div class="home-stat-num" style="color:var(--red)">${ps.length}</div><div class="home-stat-label">Sessions</div></div><div class="home-stat"><div class="home-stat-num" style="color:var(--green)">${earn}&euro;</div><div class="home-stat-label">Earned</div></div><div class="home-stat"><div class="home-stat-num" style="color:var(--gold)">${allClients.length}</div><div class="home-stat-label">Clients</div></div>`;
-  const ts=allSessions.filter(s=>s.date===todayStr()).sort((a,b)=>a.time.localeCompare(b.time)),ct=document.getElementById('homeSessions');
-  if(!ts.length){ct.innerHTML='<div class="empty-state"><div class="empty-state-icon">---</div><p>No sessions today</p></div>';return;}
-  ct.innerHTML=ts.map(s=>{const cl=getClient(s.clientId),name=cl?cl.name:s.clientName||'Unknown',badge=s.source==='booking'?'<span class="source-badge source-booking">booked</span>':'';return`<div class="card" ${cl?`onclick="showClientDetail('${s.clientId}')"`:''}><div class="card-row"><div style="display:flex;align-items:center;gap:0.6rem"><div class="client-avatar" style="width:34px;height:34px;font-size:0.75rem">${cl?avatarHTML(cl):getInitials(name)}</div><div><div class="card-name">${name}${badge}</div>${s.notes?`<div class="card-sub">${s.notes}</div>`:''}</div></div><div style="text-align:right"><div class="card-time">${s.time}</div><div class="card-price">${s.price||20}&euro;</div></div></div></div>`;}).join('');
+  const today=todayStr(),ts=allSessions.filter(s=>s.date>=today).sort((a,b)=>a.date.localeCompare(b.date)||a.time.localeCompare(b.time)),ct=document.getElementById('homeSessions');
+  if(!ts.length){ct.innerHTML='<div class="empty-state"><div class="empty-state-icon">---</div><p>No upcoming sessions</p></div>';return;}
+  let lastDate='';ct.innerHTML=ts.slice(0,15).map(s=>{const cl=getClient(s.clientId),name=cl?cl.name:s.clientName||'Unknown',badge=s.source==='booking'?'<span class="source-badge source-booking">booked</span>':'',isToday=s.date===today;
+    let dateHeader='';if(s.date!==lastDate){lastDate=s.date;dateHeader=`<div style="font-size:0.72rem;font-weight:600;color:${isToday?'var(--gold)':'var(--text-dim)'};margin:0.7rem 0 0.3rem;text-transform:uppercase;letter-spacing:0.3px">${isToday?'Today':formatDate(s.date)}</div>`;}
+    return dateHeader+`<div class="card" ${cl?`onclick="showClientDetail('${s.clientId}')"`:''}><div class="card-row"><div style="display:flex;align-items:center;gap:0.6rem"><div class="client-avatar" style="width:34px;height:34px;font-size:0.75rem">${cl?avatarHTML(cl):getInitials(name)}</div><div><div class="card-name">${name}${badge}</div>${s.notes?`<div class="card-sub">${s.notes}</div>`:''}</div></div><div style="text-align:right"><div class="card-time">${s.time}</div><div class="card-price">${s.price||20}&euro;</div></div></div></div>`;}).join('');
 }
 
 // ADMIN: SCHEDULE
@@ -462,11 +506,12 @@ function showClientDetail(clientId){
   if(c.statsHistory?.length>1){histHTML=`<div class="detail-notes" style="cursor:pointer" onclick="toggleHistory()"><div class="history-toggle"><div class="detail-notes-label" style="margin:0">Progress History (${c.statsHistory.length} entries)</div><svg class="history-toggle-icon" id="histIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></div><div class="history-body" id="histBody">${[...c.statsHistory].reverse().map(e=>`<div class="stat-history-entry"><div class="stat-history-date">${formatDateShort(e.date)}</div><div class="stat-history-values">${STAT_KEYS.map(k=>`<span>${STAT_LABELS[k].slice(0,3)}: <strong>${e[k]}</strong></span>`).join('')}</div></div>`).join('')}</div></div>`;}
   document.getElementById('clientDetailContent').innerHTML=`
     <div class="detail-header"><button class="detail-back" onclick="switchView('clients')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button><div class="detail-avatar">${avatarHTML(c)}</div><div><div class="detail-name">${c.name}</div><div class="detail-phone">${c.phone||'No phone'}</div>${meta?`<div class="detail-meta">${meta}</div>`:''}</div></div>
-    <div class="share-link-box"><div class="share-link-url">${link}</div><button class="share-link-copy" onclick="navigator.clipboard.writeText('${link}');this.textContent='Copied!';setTimeout(()=>this.textContent='Copy',1500)">Copy</button></div>
-    <div class="detail-actions"><button class="btn btn-secondary btn-small" onclick="openModal('client','${c.id}')">Edit</button><button class="btn btn-danger btn-small" onclick="confirmDeleteClient('${c.id}')">Delete</button>${c.phone?`<a href="tel:${c.phone}" class="btn btn-success btn-small" style="text-decoration:none">Call</a>`:''}</div>
+    <div style="margin-bottom:0.8rem"><button class="btn btn-small" style="background:var(--gold-dim);color:var(--gold);border:1px solid transparent;font-size:0.7rem" id="showLinkBtn" onclick="document.getElementById('linkBox').style.display='flex';this.style.display='none'">Show Booking Link</button><div class="share-link-box" id="linkBox" style="display:none"><div class="share-link-url">${link}</div><button class="share-link-copy" onclick="navigator.clipboard.writeText('${link}');this.textContent='Copied!';setTimeout(()=>this.textContent='Copy',1500)">Copy</button></div></div>
+    <div class="detail-actions"><button class="btn btn-secondary btn-small" onclick="openModal('client','${c.id}')">Edit</button>${c.phone?`<a href="tel:${c.phone}" class="btn btn-success btn-small" style="text-decoration:none">Call</a>`:''}</div>
     ${c.notes?`<div class="detail-notes"><div class="detail-notes-label">Notes</div><div class="detail-notes-text">${c.notes}</div></div>`:''}
-    <div class="detail-notes"><div class="detail-notes-label">Upcoming Sessions</div><div class="detail-notes-text">${schedInfo}</div></div>
-    ${statsHTML}${histHTML}`;
+    <div class="detail-notes" style="cursor:pointer" onclick="toggleUpcoming('${c.id}')"><div class="detail-notes-label" style="display:flex;align-items:center;justify-content:space-between">Next Session <svg class="history-toggle-icon" id="upcomingIcon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></div><div class="detail-notes-text" id="nextSessionText">${upcoming.length?`${formatDate(upcoming[0].date)} at ${upcoming[0].time}`:'No upcoming sessions'}</div><div class="history-body" id="upcomingBody">${upcoming.length>1?upcoming.map(s=>`<div class="stat-history-entry"><div style="display:flex;justify-content:space-between"><span style="font-weight:600;color:var(--text)">${formatDate(s.date)} at ${s.time}</span><span style="color:var(--green)">${s.price||20}&euro;</span></div>${s.notes?`<div style="color:var(--text-dim);font-size:0.72rem;margin-top:0.1rem">${s.notes}</div>`:''}</div>`).join(''):''}${upcoming.length<=1?'<div style="padding:0.3rem 0;color:var(--text-faint);font-size:0.75rem">No more upcoming sessions</div>':''}</div></div>
+    ${statsHTML}${histHTML}
+    <div style="margin-top:2rem;padding-top:1rem;border-top:1px solid var(--border)"><button class="btn btn-small" style="background:none;color:var(--text-faint);font-size:0.7rem;padding:0.3rem 0" onclick="confirmDeleteClient('${c.id}')">Delete Client</button></div>`;
 }
 
 // MODALS & CRUD
@@ -484,7 +529,7 @@ function openModal(type,editId){
   }
   ov.classList.add('open');const fi=ct.querySelector('input[type="text"],input[type="tel"],select');if(fi)setTimeout(()=>fi.focus(),100);
 }
-function handlePhoto(input){if(!input.files[0])return;resizeImage(input.files[0],120,function(url){tempPhoto=url;document.querySelector('.photo-upload').innerHTML=`<img src="${url}" id="photoPreview"><input type="file" id="fPhoto" accept="image/*" onchange="handlePhoto(this)">`;});}
+function handlePhoto(input){if(!input.files[0])return;openCropModal(input.files[0],function(url){tempPhoto=url;document.querySelector('.photo-upload').innerHTML=`<img src="${url}" id="photoPreview"><input type="file" id="fPhoto" accept="image/*" onchange="handlePhoto(this)">`;});}
 function closeModal(){document.getElementById('modalOverlay').classList.remove('open');}
 function closeModalOutside(e){if(e.target===e.currentTarget)closeModal();}
 
