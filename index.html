@@ -1076,6 +1076,9 @@ let aAvailSlots = [];
 let allSessions = [];
 let allSessionsUnsub = null;
 
+// Client list for booking dropdown (from Firestore)
+let bClientList = [];
+
 // ‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê
 // MODE SWITCHING
 // ‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê
@@ -1083,7 +1086,29 @@ function showBookingView() {
   isAdmin = false;
   document.getElementById('appBooking').style.display = '';
   document.getElementById('appAdmin').style.display = 'none';
+  loadClientList();
   bRenderWeek();
+}
+
+// Load client names from Firestore for booking dropdown
+async function loadClientList() {
+  try {
+    const doc = await db.collection('config').doc('clientList').get();
+    bClientList = doc.exists ? (doc.data().clients || []) : [];
+  } catch(e) {
+    console.error('Error loading client list:', e);
+    bClientList = [];
+  }
+}
+
+// Sync client names to Firestore (called after admin saves/deletes clients)
+async function syncClientList() {
+  const clients = localData.clients.map(c => ({ id: c.id, name: c.name })).sort((a,b) => a.name.localeCompare(b.name));
+  try {
+    await db.collection('config').doc('clientList').set({ clients });
+  } catch(e) {
+    console.error('Error syncing client list:', e);
+  }
 }
 
 function showAdminView() {
@@ -1275,6 +1300,20 @@ function bDisplaySlots() {
 
 function bOpenBooking(date, time) {
   const ct = document.getElementById('modalContent');
+
+  if (!bClientList.length) {
+    ct.innerHTML = `
+      <div class="modal-header">
+        <div class="modal-title">Book Session</div>
+        <button class="modal-close" onclick="closeModal()">&times;</button>
+      </div>
+      <div class="empty-state"><p>No clients set up yet. Ask your trainer to add you first.</p></div>
+      <div class="form-actions"><button class="btn btn-secondary" onclick="closeModal()">Close</button></div>`;
+    document.getElementById('modalOverlay').classList.add('open');
+    return;
+  }
+
+  const opts = bClientList.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
   ct.innerHTML = `
     <div class="modal-header">
       <div class="modal-title">Book Session</div>
@@ -1286,11 +1325,11 @@ function bOpenBooking(date, time) {
     </div>
     <div class="form-group">
       <label class="form-label">Your Name</label>
-      <input type="text" class="form-input" id="bName" placeholder="Full name">
+      <select class="form-select" id="bClientSelect">${opts}</select>
     </div>
     <div class="form-group">
-      <label class="form-label">Phone Number</label>
-      <input type="tel" class="form-input" id="bPhone" placeholder="091 234 5678">
+      <label class="form-label">Note (optional)</label>
+      <textarea class="form-textarea" id="bNote" placeholder="e.g. Might be 5 mins late..."></textarea>
     </div>
     <div id="bBookError" class="pin-error"></div>
     <div class="form-actions">
@@ -1298,16 +1337,16 @@ function bOpenBooking(date, time) {
       <button class="btn btn-primary" id="bBookBtn" onclick="bConfirmBooking('${date}','${time}')">Book Now</button>
     </div>`;
   document.getElementById('modalOverlay').classList.add('open');
-  setTimeout(() => document.getElementById('bName').focus(), 100);
 }
 
 async function bConfirmBooking(date, time) {
-  const name = document.getElementById('bName').value.trim();
-  const phone = document.getElementById('bPhone').value.trim();
+  const select = document.getElementById('bClientSelect');
+  const clientId = select.value;
+  const clientName = select.options[select.selectedIndex].text;
+  const notes = (document.getElementById('bNote')?.value || '').trim();
   const errEl = document.getElementById('bBookError');
 
-  if (!name) { errEl.textContent = 'Please enter your name'; return; }
-  if (!phone) { errEl.textContent = 'Please enter your phone number'; return; }
+  if (!clientId) { errEl.textContent = 'Please select your name'; return; }
 
   const btn = document.getElementById('bBookBtn');
   btn.textContent = 'Booking...';
@@ -1329,10 +1368,11 @@ async function bConfirmBooking(date, time) {
       t.set(sessionRef, {
         date,
         time,
-        clientName: name,
-        clientPhone: phone,
+        clientName: clientName,
+        clientPhone: '',
+        clientId: clientId,
         price: 20,
-        notes: '',
+        notes: notes,
         source: 'booking',
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
       });
@@ -1848,7 +1888,7 @@ function saveClient(editId) {
   } else {
     localData.clients.push({ id: uid(), name, phone, age, weight, height, notes, photo: tempPhoto, createdAt: todayStr(), statsHistory: [] });
   }
-  saveLocal(); closeModal(); renderCurrentView();
+  saveLocal(); syncClientList(); closeModal(); renderCurrentView();
   if (editId) showClientDetail(editId);
 }
 
@@ -1938,7 +1978,7 @@ function confirmDeleteClient(id) {
 
 function deleteClient(id) {
   localData.clients = localData.clients.filter(c => c.id !== id);
-  saveLocal(); closeModal(); switchView('clients');
+  saveLocal(); syncClientList(); closeModal(); switchView('clients');
 }
 
 // ‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê
