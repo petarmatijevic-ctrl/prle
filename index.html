@@ -234,8 +234,8 @@
 firebase.initializeApp({apiKey:"AIzaSyCqQb62v7xeTh2zDRkj4VU8XDK0ZUAn0So",authDomain:"prle-4ccce.firebaseapp.com",projectId:"prle-4ccce",storageBucket:"prle-4ccce.firebasestorage.app",messagingSenderId:"154412359220",appId:"1:154412359220:web:cd9118bdeb75a7dcc2f461"});
 const db=firebase.firestore();
 
-const STAT_KEYS=['footwork','speed','strength','power','durability','heart'];
-const STAT_LABELS={footwork:'Footwork',speed:'Speed',strength:'Strength',power:'Power',durability:'Durability',heart:'Heart'};
+const STAT_KEYS=['footwork','speed','strength','power','endurance','heart'];
+const STAT_LABELS={footwork:'Footwork',speed:'Speed',strength:'Strength',power:'Power',endurance:'Endurance',heart:'Heart'};
 const DAYS=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
 const DAYS_FULL=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
 const ALL_TIMES=[]; for(let h=7;h<=21;h++) ALL_TIMES.push(String(h).padStart(2,'0')+':00');
@@ -254,7 +254,7 @@ function getStatColor(v){return v<35?'low':v<70?'mid':'high';}
 function avatarHTML(c){return c.photo?`<img src="${c.photo}" alt="${c.name}">`:getInitials(c.name);}
 function circleStatSVG(v,sz){const r=(sz/2)-5,ci=2*Math.PI*r,off=ci-(v/100)*ci,col=getStatColor(v);return`<svg width="${sz}" height="${sz}" class="stat-circle-svg" viewBox="0 0 ${sz} ${sz}"><circle cx="${sz/2}" cy="${sz/2}" r="${r}" class="stat-circle-bg" stroke-width="5"/><circle cx="${sz/2}" cy="${sz/2}" r="${r}" class="stat-circle-fill ${col}" stroke-width="5" stroke-dasharray="${ci}" stroke-dashoffset="${off}"/><text x="${sz/2}" y="${sz/2}" class="stat-circle-text" text-anchor="middle" dominant-baseline="central" transform="rotate(90 ${sz/2} ${sz/2})">${v}</text></svg>`;}
 function changeText(cur,prev){if(prev==null)return'';const d=cur-prev;if(d===0)return'<span class="stat-circle-change same">--</span>';const p=prev>0?Math.round((d/prev)*100):(d>0?100:-100);return d>0?`<span class="stat-circle-change up">+${p}%</span>`:`<span class="stat-circle-change down">${p}%</span>`;}
-function resizeImage(file,mx,cb){const r=new FileReader();r.onload=function(e){const img=new Image();img.onload=function(){const cv=document.createElement('canvas');let w=img.width,h=img.height;if(w>h){if(w>mx){h*=mx/w;w=mx;}}else{if(h>mx){w*=mx/h;h=mx;}}cv.width=w;cv.height=h;cv.getContext('2d').drawImage(img,0,0,w,h);cb(cv.toDataURL('image/jpeg',0.85));};img.src=e.target.result;};r.readAsDataURL(file);}
+function resizeImage(file,mx,cb){const r=new FileReader();r.onload=function(e){const img=new Image();img.onload=function(){const cv=document.createElement('canvas');let w=img.width,h=img.height;if(w>h){if(w>mx){h*=mx/w;w=mx;}}else{if(h>mx){w*=mx/h;h=mx;}}cv.width=w;cv.height=h;cv.getContext('2d').drawImage(img,0,0,w,h);cb(cv.toDataURL('image/jpeg',0.92));};img.src=e.target.result;};r.readAsDataURL(file);}
 
 // PHOTO CROP
 let cropImg=null,cropZoom=1,cropX=0,cropY=0,cropDrag=false,cropLastT=null,cropCb=null;
@@ -291,10 +291,14 @@ function cropEnd(){cropDrag=false;cropLastT=null;}
 function cropTouchStart(e){e.preventDefault();if(e.touches.length===1){cropDrag=true;cropLastT={x:e.touches[0].clientX,y:e.touches[0].clientY};}}
 function cropTouchMove(e){e.preventDefault();if(!cropDrag||!cropLastT||e.touches.length!==1)return;cropX+=e.touches[0].clientX-cropLastT.x;cropY+=e.touches[0].clientY-cropLastT.y;cropLastT={x:e.touches[0].clientX,y:e.touches[0].clientY};drawCrop();}
 function applyCrop(){
-  const cv=document.getElementById('cropCanvas');if(!cv)return;
-  const out=document.createElement('canvas');out.width=300;out.height=300;
-  const octx=out.getContext('2d');octx.drawImage(cv,0,0,220,220,0,0,300,300);
-  const url=out.toDataURL('image/jpeg',0.85);closeModal();if(cropCb)cropCb(url);
+  if(!cropImg)return;
+  const sz=220,scale=Math.max(sz/cropImg.width,sz/cropImg.height)*cropZoom;
+  const dw=cropImg.width*scale,dh=cropImg.height*scale;
+  const dx=(sz-dw)/2+cropX,dy=(sz-dh)/2+cropY;
+  const out=document.createElement('canvas');out.width=500;out.height=500;
+  const octx=out.getContext('2d'),r=500/sz;
+  octx.drawImage(cropImg,dx*r,dy*r,dw*r,dh*r);
+  const url=out.toDataURL('image/jpeg',0.92);closeModal();if(cropCb)cropCb(url);
 }
 function getBaseUrl(){return window.location.origin+window.location.pathname;}
 
@@ -467,16 +471,16 @@ function aListenDate(date){
 function aRenderDay(){
   const ct=document.getElementById('scheduleSessions'),bt=aSessionsList.map(s=>s.time),al=aAvailSlots.filter(s=>!bt.includes(s)).sort();
   if(!aSessionsList.length&&!al.length){ct.innerHTML=`<div class="empty-state"><div class="empty-state-icon">---</div><p>No sessions or availability for ${DAYS_FULL[aSelectedDay]}</p></div>`;document.getElementById('availSection').innerHTML='';return;}
-  ct.innerHTML=aSessionsList.map(s=>{const cl=getClient(s.clientId),name=cl?cl.name:s.clientName||'Unknown',badge=s.source==='booking'?'<span class="source-badge source-booking">booked</span>':'';return`<div class="card"><div class="card-row"><div style="display:flex;align-items:center;gap:0.6rem"><div class="client-avatar" style="width:34px;height:34px;font-size:0.75rem">${cl?avatarHTML(cl):getInitials(name)}</div><div><div class="card-name">${name}${badge}</div>${s.notes?`<div class="card-sub">${s.notes}</div>`:''}</div></div><div style="display:flex;align-items:center;gap:0.4rem"><div style="text-align:right"><div class="card-time">${s.time}</div><div class="card-price">${s.price||20}&euro;</div></div><button class="btn btn-danger btn-icon btn-small" onclick="event.stopPropagation();deleteSession('${s.id}','${s.date}','${s.time}','${s.source}')" title="Remove">x</button></div></div></div>`;}).join('');
+  ct.innerHTML=aSessionsList.map(s=>{const cl=getClient(s.clientId),name=cl?cl.name:s.clientName||'Unknown',badge=s.source==='booking'?'<span class="source-badge source-booking">booked</span>':'';return`<div class="card"><div class="card-row"><div style="display:flex;align-items:center;gap:0.6rem"><div class="client-avatar" style="width:34px;height:34px;font-size:0.75rem">${cl?avatarHTML(cl):getInitials(name)}</div><div><div class="card-name">${name}${badge}</div>${s.notes?`<div class="card-sub">${s.notes}</div>`:''}</div></div><div style="display:flex;align-items:center;gap:0.4rem"><div style="text-align:right"><div class="card-time">${s.time}</div><div class="card-price">${s.price||20}&euro;</div></div><button class="btn btn-danger btn-icon btn-small" onclick="event.stopPropagation();confirmDeleteSession('${s.id}','${s.date}','${s.time}','${s.source}')" title="Remove">x</button></div></div></div>`;}).join('');
   document.getElementById('availSection').innerHTML=al.length?`<div class="avail-label">Still Available</div><div class="avail-chips">${al.map(t=>`<div class="avail-chip">${t}</div>`).join('')}</div>`:'';
 }
 function openAvailabilityModal(){
   const date=aGetDate(),bt=aSessionsList.map(s=>s.time);
-  document.getElementById('modalContent').innerHTML=`<div class="modal-header"><div class="modal-title">Set Availability</div><button class="modal-close" onclick="closeModal()">&times;</button></div><div style="font-size:0.85rem;color:var(--text-dim);margin-bottom:0.8rem">${formatDateLong(date)}</div><div class="quick-btns"><button class="quick-btn" onclick="availQuick('morning')">Morning (7-12)</button><button class="quick-btn" onclick="availQuick('afternoon')">Afternoon (13-18)</button><button class="quick-btn" onclick="availQuick('full')">Full Day (7-21)</button><button class="quick-btn" onclick="availQuick('clear')">Clear All</button></div><div class="time-grid" id="timeGrid">${ALL_TIMES.map(t=>{const bk=bt.includes(t),sel=aAvailSlots.includes(t)||bk;return`<button class="time-chip ${bk?'booked':sel?'selected':''}" data-time="${t}" ${bk?'disabled':''} onclick="toggleTimeChip(this)">${t}${bk?' &#128274;':''}</button>`;}).join('')}</div><div class="form-actions"><button class="btn btn-secondary" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="saveAvailability('${date}')">Save</button></div>`;
+  document.getElementById('modalContent').innerHTML=`<div class="modal-header"><div class="modal-title">Set Availability</div><button class="modal-close" onclick="closeModal()">&times;</button></div><div style="font-size:0.85rem;color:var(--text-dim);margin-bottom:0.8rem">${formatDateLong(date)}</div><div class="quick-btns"><button class="quick-btn" onclick="availQuick('morning')">Morning (7-12)</button><button class="quick-btn" onclick="availQuick('afternoon')">Afternoon (12-17)</button><button class="quick-btn" onclick="availQuick('evening')">Evening (17-21)</button><button class="quick-btn" onclick="availQuick('clear')">Clear All</button></div><div class="time-grid" id="timeGrid">${ALL_TIMES.map(t=>{const bk=bt.includes(t),sel=aAvailSlots.includes(t)||bk;return`<button class="time-chip ${bk?'booked':sel?'selected':''}" data-time="${t}" ${bk?'disabled':''} onclick="toggleTimeChip(this)">${t}${bk?' &#128274;':''}</button>`;}).join('')}</div><div class="form-actions"><button class="btn btn-secondary" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="saveAvailability('${date}')">Save</button></div>`;
   document.getElementById('modalOverlay').classList.add('open');
 }
 function toggleTimeChip(el){if(!el.disabled)el.classList.toggle('selected');}
-function availQuick(p){document.querySelectorAll('#timeGrid .time-chip:not(.booked)').forEach(c=>{const h=parseInt(c.dataset.time);if(p==='clear')c.classList.remove('selected');else if(p==='morning')c.classList.toggle('selected',h>=7&&h<12);else if(p==='afternoon')c.classList.toggle('selected',h>=13&&h<18);else if(p==='full')c.classList.add('selected');});}
+function availQuick(p){document.querySelectorAll('#timeGrid .time-chip:not(.booked)').forEach(c=>{const h=parseInt(c.dataset.time);if(p==='clear')c.classList.remove('selected');else if(p==='morning'){if(h>=7&&h<12)c.classList.add('selected');}else if(p==='afternoon'){if(h>=12&&h<17)c.classList.add('selected');}else if(p==='evening'){if(h>=17&&h<=21)c.classList.add('selected');}});}
 async function saveAvailability(date){const sel=Array.from(document.querySelectorAll('#timeGrid .time-chip.selected:not(.booked)')).map(c=>c.dataset.time);try{await db.collection('availability').doc(date).set({slots:sel.sort()});closeModal();}catch(e){alert('Error saving.');}}
 
 // ADMIN: CLIENTS
@@ -506,12 +510,14 @@ function showClientDetail(clientId){
   if(c.statsHistory?.length>1){histHTML=`<div class="detail-notes" style="cursor:pointer" onclick="toggleHistory()"><div class="history-toggle"><div class="detail-notes-label" style="margin:0">Progress History (${c.statsHistory.length} entries)</div><svg class="history-toggle-icon" id="histIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></div><div class="history-body" id="histBody">${[...c.statsHistory].reverse().map(e=>`<div class="stat-history-entry"><div class="stat-history-date">${formatDateShort(e.date)}</div><div class="stat-history-values">${STAT_KEYS.map(k=>`<span>${STAT_LABELS[k].slice(0,3)}: <strong>${e[k]}</strong></span>`).join('')}</div></div>`).join('')}</div></div>`;}
   document.getElementById('clientDetailContent').innerHTML=`
     <div class="detail-header"><button class="detail-back" onclick="switchView('clients')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button><div class="detail-avatar">${avatarHTML(c)}</div><div><div class="detail-name">${c.name}</div><div class="detail-phone">${c.phone||'No phone'}</div>${meta?`<div class="detail-meta">${meta}</div>`:''}</div></div>
-    <div style="margin-bottom:0.8rem"><button class="btn btn-small" style="background:var(--gold-dim);color:var(--gold);border:1px solid transparent;font-size:0.7rem" id="showLinkBtn" onclick="document.getElementById('linkBox').style.display='flex';this.style.display='none'">Show Booking Link</button><div class="share-link-box" id="linkBox" style="display:none"><div class="share-link-url">${link}</div><button class="share-link-copy" onclick="navigator.clipboard.writeText('${link}');this.textContent='Copied!';setTimeout(()=>this.textContent='Copy',1500)">Copy</button></div></div>
     <div class="detail-actions"><button class="btn btn-secondary btn-small" onclick="openModal('client','${c.id}')">Edit</button>${c.phone?`<a href="tel:${c.phone}" class="btn btn-success btn-small" style="text-decoration:none">Call</a>`:''}</div>
     ${c.notes?`<div class="detail-notes"><div class="detail-notes-label">Notes</div><div class="detail-notes-text">${c.notes}</div></div>`:''}
     <div class="detail-notes" style="cursor:pointer" onclick="toggleUpcoming('${c.id}')"><div class="detail-notes-label" style="display:flex;align-items:center;justify-content:space-between">Next Session <svg class="history-toggle-icon" id="upcomingIcon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></div><div class="detail-notes-text" id="nextSessionText">${upcoming.length?`${formatDate(upcoming[0].date)} at ${upcoming[0].time}`:'No upcoming sessions'}</div><div class="history-body" id="upcomingBody">${upcoming.length>1?upcoming.map(s=>`<div class="stat-history-entry"><div style="display:flex;justify-content:space-between"><span style="font-weight:600;color:var(--text)">${formatDate(s.date)} at ${s.time}</span><span style="color:var(--green)">${s.price||20}&euro;</span></div>${s.notes?`<div style="color:var(--text-dim);font-size:0.72rem;margin-top:0.1rem">${s.notes}</div>`:''}</div>`).join(''):''}${upcoming.length<=1?'<div style="padding:0.3rem 0;color:var(--text-faint);font-size:0.75rem">No more upcoming sessions</div>':''}</div></div>
     ${statsHTML}${histHTML}
-    <div style="margin-top:2rem;padding-top:1rem;border-top:1px solid var(--border)"><button class="btn btn-small" style="background:none;color:var(--text-faint);font-size:0.7rem;padding:0.3rem 0" onclick="confirmDeleteClient('${c.id}')">Delete Client</button></div>`;
+    <div style="margin-top:2rem;padding-top:1rem;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:0.6rem">
+      <div><button class="btn btn-small" style="background:var(--gold-dim);color:var(--gold);border:1px solid transparent;font-size:0.7rem" onclick="const b=document.getElementById('linkBox');const s=b.style.display==='none';b.style.display=s?'flex':'none';this.textContent=s?'Hide Booking Link':'Show Booking Link'">Show Booking Link</button><div class="share-link-box" id="linkBox" style="display:none;margin-top:0.4rem"><div class="share-link-url">${link}</div><button class="share-link-copy" onclick="navigator.clipboard.writeText('${link}');this.textContent='Copied!';setTimeout(()=>this.textContent='Copy',1500)">Copy</button></div></div>
+      <button class="btn btn-small" style="background:none;color:var(--text-faint);font-size:0.7rem;padding:0.3rem 0;align-self:flex-start" onclick="confirmDeleteClient('${c.id}')">Delete Client</button>
+    </div>`;
 }
 
 // MODALS & CRUD
@@ -548,7 +554,12 @@ async function saveStats(clientId){
   const hist=[...(c.statsHistory||[]),entry];
   try{await db.collection('clients').doc(clientId).update({statsHistory:hist});closeModal();setTimeout(()=>showClientDetail(clientId),300);}catch(e){alert('Error saving stats.');}
 }
-async function deleteSession(id,date,time,source){try{await db.collection('sessions').doc(id).delete();if(source==='booking')await db.collection('availability').doc(date).set({slots:firebase.firestore.FieldValue.arrayUnion(time)},{merge:true});}catch(e){console.error(e);}}
+function confirmDeleteSession(id,date,time,source){
+  const s=aSessionsList.find(x=>x.id===id),name=s?s.clientName:'this session';
+  document.getElementById('modalContent').innerHTML=`<div class="modal-header"><div class="modal-title">Cancel Session</div><button class="modal-close" onclick="closeModal()">&times;</button></div><div class="confirm-dialog"><p>Cancel <strong>${name}</strong>'s session on <strong>${formatDate(date)}</strong> at <strong>${time}</strong>?</p><div class="form-actions"><button class="btn btn-secondary" onclick="closeModal()">Keep</button><button class="btn btn-danger" onclick="deleteSession('${id}','${date}','${time}','${source}')">Cancel Session</button></div></div>`;
+  document.getElementById('modalOverlay').classList.add('open');
+}
+async function deleteSession(id,date,time,source){try{await db.collection('sessions').doc(id).delete();if(source==='booking')await db.collection('availability').doc(date).set({slots:firebase.firestore.FieldValue.arrayUnion(time)},{merge:true});closeModal();}catch(e){console.error(e);}}
 function confirmDeleteClient(id){const c=getClient(id);if(!c)return;document.getElementById('modalContent').innerHTML=`<div class="modal-header"><div class="modal-title">Delete Client</div><button class="modal-close" onclick="closeModal()">&times;</button></div><div class="confirm-dialog"><p>Remove <strong>${c.name}</strong> and all their data?</p><div class="form-actions"><button class="btn btn-secondary" onclick="closeModal()">Cancel</button><button class="btn btn-danger" onclick="deleteClient('${id}')">Delete</button></div></div>`;document.getElementById('modalOverlay').classList.add('open');}
 async function deleteClient(id){try{await db.collection('clients').doc(id).delete();closeModal();switchView('clients');}catch(e){alert('Error deleting.');}}
 
