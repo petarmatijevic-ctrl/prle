@@ -9,6 +9,7 @@
 <title>Prle - Boxing Trainer</title>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <style>
   :root { --bg:#0c0c14;--card:#161625;--card-hover:#1c1c30;--border:#2a2a3d;--red:#e63946;--red-dim:#e6394620;--green:#2a9d8f;--green-dim:#2a9d8f20;--gold:#e9c46a;--gold-dim:#e9c46a15;--text:#eaeaea;--text-dim:#888;--text-faint:#555; }
   * { margin:0;padding:0;box-sizing:border-box; }
@@ -235,6 +236,10 @@
 <script>
 firebase.initializeApp({apiKey:"AIzaSyCqQb62v7xeTh2zDRkj4VU8XDK0ZUAn0So",authDomain:"prle-4ccce.firebaseapp.com",projectId:"prle-4ccce",storageBucket:"prle-4ccce.firebasestorage.app",messagingSenderId:"154412359220",appId:"1:154412359220:web:cd9118bdeb75a7dcc2f461"});
 const db=firebase.firestore();
+emailjs.init('OtCjpsPcUAQ4P5UJj');
+function sendBookingEmail(clientName,date,time,notes){
+  emailjs.send('service_zctcl0x','template_4ym8idl',{to_email:'petarmatijevic02@gmail.com',client_name:clientName,date:formatDateLong(date),time:time,notes:notes||'No notes'}).then(()=>console.log('Email sent')).catch(e=>console.error('Email error:',e));
+}
 
 const STAT_KEYS=['footwork','speed','strength','power','endurance','heart'];
 const STAT_LABELS={footwork:'Footwork',speed:'Speed',strength:'Strength',power:'Power',endurance:'Endurance',heart:'Heart'};
@@ -395,6 +400,7 @@ async function cConfirmBooking(date,time){
   try{
     await db.runTransaction(async t=>{const ref=db.collection('availability').doc(date),doc=await t.get(ref);const slots=doc.exists?(doc.data().slots||[]):[];if(!slots.includes(time))throw new Error('TAKEN');t.update(ref,{slots:slots.filter(s=>s!==time)});t.set(db.collection('sessions').doc(),{date,time,clientName:cClient.name,clientPhone:cClient.phone||'',clientId:cClient.id,price:20,notes,source:'booking',createdAt:firebase.firestore.FieldValue.serverTimestamp()});});
     closeModal();document.getElementById('cSlots').style.display='none';document.getElementById('cConfirmation').style.display='';document.getElementById('cConfirmDetails').textContent=`${formatDateLong(date)} at ${time}`;
+    sendBookingEmail(cClient.name,date,time,notes);
   }catch(e){err.textContent=e.message==='TAKEN'?'This slot was just taken! Pick another.':'Error booking. Try again.';btn.textContent='Book Now';btn.disabled=false;}
 }
 function cBackToSlots(){document.getElementById('cSlots').style.display='';document.getElementById('cConfirmation').style.display='none';cRenderWeek();}
@@ -502,12 +508,12 @@ function aRenderDay(){
 }
 function openAvailabilityModal(){
   const date=aGetDate(),bt=aSessionsList.map(s=>s.time);
-  document.getElementById('modalContent').innerHTML=`<div class="modal-header"><div class="modal-title">Set Availability</div><button class="modal-close" onclick="closeModal()">&times;</button></div><div style="font-size:0.85rem;color:var(--text-dim);margin-bottom:0.8rem">${formatDateLong(date)}</div><div class="quick-btns"><button class="quick-btn" id="qb_morning" onclick="availQuick('morning',this)">Morning (7-12)</button><button class="quick-btn" id="qb_afternoon" onclick="availQuick('afternoon',this)">Afternoon (12-17)</button><button class="quick-btn" id="qb_evening" onclick="availQuick('evening',this)">Evening (17-21)</button><button class="quick-btn" onclick="availQuick('clear')">Clear All</button></div><div class="time-grid" id="timeGrid">${ALL_TIMES.map(t=>{const bk=bt.includes(t),sel=aAvailSlots.includes(t)||bk;return`<button class="time-chip ${bk?'booked':sel?'selected':''}" data-time="${t}" ${bk?'disabled':''} onclick="toggleTimeChip(this)">${t}${bk?' &#128274;':''}</button>`;}).join('')}</div><div class="form-actions"><button class="btn btn-secondary" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="saveAvailability('${date}')">Save</button></div>`;
+  document.getElementById('modalContent').innerHTML=`<div class="modal-header"><div class="modal-title">Set Availability</div><button class="modal-close" onclick="closeModal()">&times;</button></div><div style="font-size:0.85rem;color:var(--text-dim);margin-bottom:0.8rem">${formatDateLong(date)}</div><div class="quick-btns"><button class="quick-btn" id="qb_morning" onclick="availQuick('morning',this)">Morning (7-12)</button><button class="quick-btn" id="qb_afternoon" onclick="availQuick('afternoon',this)">Afternoon (12-17)</button><button class="quick-btn" id="qb_evening" onclick="availQuick('evening',this)">Evening (17-22)</button><button class="quick-btn" onclick="availQuick('clear')">Clear All</button></div><div class="time-grid" id="timeGrid">${ALL_TIMES.map(t=>{const bk=bt.includes(t),sel=aAvailSlots.includes(t)||bk;return`<button class="time-chip ${bk?'booked':sel?'selected':''}" data-time="${t}" ${bk?'disabled':''} onclick="toggleTimeChip(this)">${t}${bk?' &#128274;':''}</button>`;}).join('')}</div><div class="form-actions"><button class="btn btn-secondary" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="saveAvailability('${date}')">Save</button></div>`;
   document.getElementById('modalOverlay').classList.add('open');
 }
 function toggleTimeChip(el){if(!el.disabled)el.classList.toggle('selected');}
 function availQuick(p,btn){
-  const ranges={morning:[7,12],afternoon:[12,17],evening:[17,21]};
+  const ranges={morning:[7,12],afternoon:[12,17],evening:[17,22]};
   if(p==='clear'){document.querySelectorAll('#timeGrid .time-chip:not(.booked)').forEach(c=>c.classList.remove('selected'));document.querySelectorAll('.quick-btn').forEach(b=>{b.style.background='';b.style.color='';b.style.borderColor='';});return;}
   const active=btn.dataset.active==='1';
   document.querySelectorAll('#timeGrid .time-chip:not(.booked)').forEach(c=>{const h=parseInt(c.dataset.time);if(h>=ranges[p][0]&&h<ranges[p][1]){if(active)c.classList.remove('selected');else c.classList.add('selected');}});
