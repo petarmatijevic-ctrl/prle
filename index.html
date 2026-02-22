@@ -6,6 +6,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#0c0c14">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
 <title>Prle - Boxing Trainer</title>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
@@ -619,6 +621,8 @@ async function migrateOldClients(){
   if(sessionStorage.getItem('prle_admin')){const has=await loadPin();if(has){showAdminView();return;}}
   showLanding();
 })();
+
+if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js').catch(e=>console.log('SW error:',e));}
 </script>
 </body>
 </html>
