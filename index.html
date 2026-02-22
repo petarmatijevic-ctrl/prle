@@ -130,6 +130,19 @@
 
   .period-tab.active { background: var(--red); color: white; }
 
+  .date-range {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.8rem;
+  }
+
+  .date-range .form-input {
+    flex: 1;
+    padding: 0.5rem 0.6rem;
+    font-size: 14px;
+  }
+
   .home-stats {
     display: flex;
     gap: 0.5rem;
@@ -286,6 +299,32 @@
   .stat-circle-change.up { color: var(--green); }
   .stat-circle-change.down { color: var(--red); }
   .stat-circle-change.same { color: var(--text-faint); }
+
+  .history-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .history-toggle-icon {
+    transition: transform 0.2s;
+    color: var(--text-dim);
+  }
+
+  .history-toggle-icon.open {
+    transform: rotate(180deg);
+  }
+
+  .history-body {
+    display: none;
+    margin-top: 0.5rem;
+  }
+
+  .history-body.open {
+    display: block;
+  }
 
   .stat-history-entry {
     font-size: 0.75rem;
@@ -537,7 +576,12 @@
     <div class="period-tabs" id="periodTabs">
       <button class="period-tab active" onclick="setPeriod('week')">This Week</button>
       <button class="period-tab" onclick="setPeriod('month')">This Month</button>
-      <button class="period-tab" onclick="setPeriod('all')">All Time</button>
+      <button class="period-tab" onclick="setPeriod('custom')">Custom</button>
+    </div>
+    <div class="date-range" id="dateRange" style="display:none">
+      <input type="date" class="form-input" id="rangeFrom" onchange="renderHome()">
+      <span style="color:var(--text-faint);font-size:0.8rem">to</span>
+      <input type="date" class="form-input" id="rangeTo" onchange="renderHome()">
     </div>
     <div class="home-stats" id="homeStats"></div>
     <div class="section-header">
@@ -737,6 +781,16 @@ function setPeriod(p) {
   homePeriod = p;
   document.querySelectorAll('.period-tab').forEach(t => t.classList.remove('active'));
   event.target.classList.add('active');
+  document.getElementById('dateRange').style.display = p === 'custom' ? 'flex' : 'none';
+  if (p === 'custom') {
+    const from = document.getElementById('rangeFrom');
+    const to = document.getElementById('rangeTo');
+    if (!from.value) {
+      const d = new Date(); d.setDate(1);
+      from.value = dateStr(d);
+      to.value = todayStr();
+    }
+  }
   renderHome();
 }
 
@@ -759,8 +813,8 @@ function renderHome() {
     const e = new Date(d.getFullYear(), d.getMonth()+1, 0);
     endDate = dateStr(e);
   } else {
-    startDate = '2000-01-01';
-    endDate = '2099-12-31';
+    startDate = document.getElementById('rangeFrom')?.value || '2000-01-01';
+    endDate = document.getElementById('rangeTo')?.value || '2099-12-31';
   }
 
   const periodSessions = getSessionsInRange(startDate, endDate);
@@ -919,10 +973,18 @@ function showClientDetail(clientId) {
 
   let histHTML = '';
   if (c.statsHistory?.length > 1) {
-    histHTML = `<div class="section-header"><div class="section-title">Progress History</div></div>
-      <div class="detail-notes">${[...c.statsHistory].reverse().map(e => `
-        <div class="stat-history-entry"><div class="stat-history-date">${formatDateShort(e.date)}</div>
-        <div class="stat-history-values">${STAT_KEYS.map(k => `<span>${STAT_LABELS[k].slice(0,3)}: <strong>${e[k]}</strong></span>`).join('')}</div></div>`).join('')}</div>`;
+    histHTML = `
+      <div class="detail-notes" style="cursor:pointer" onclick="toggleHistory()">
+        <div class="history-toggle">
+          <div class="detail-notes-label" style="margin:0">Progress History (${c.statsHistory.length} entries)</div>
+          <svg class="history-toggle-icon" id="histIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+        <div class="history-body" id="histBody">
+          ${[...c.statsHistory].reverse().map(e => `
+            <div class="stat-history-entry"><div class="stat-history-date">${formatDateShort(e.date)}</div>
+            <div class="stat-history-values">${STAT_KEYS.map(k => `<span>${STAT_LABELS[k].slice(0,3)}: <strong>${e[k]}</strong></span>`).join('')}</div></div>`).join('')}
+        </div>
+      </div>`;
   }
 
   document.getElementById('clientDetailContent').innerHTML = `
@@ -1073,6 +1135,11 @@ function saveStats(clientId) {
   if (!c.statsHistory) c.statsHistory = [];
   c.statsHistory.push(entry);
   saveData(data); closeModal(); showClientDetail(clientId);
+}
+
+function toggleHistory() {
+  document.getElementById('histBody').classList.toggle('open');
+  document.getElementById('histIcon').classList.toggle('open');
 }
 
 function deleteSession(id) {
