@@ -186,9 +186,11 @@
       <div id="cConfirmation" style="display:none"><div class="booking-confirmed"><div class="booking-check">&#10003;</div><h3>Session Booked!</h3><p id="cConfirmDetails"></p><p class="booking-see-you">See you there!</p><button class="btn btn-primary" onclick="cBackToSlots()">Book Another</button></div></div>
     </div>
     <div class="view" id="viewCProfile"><div id="cProfileContent"><div class="loading-spinner">Loading...</div></div></div>
+    <div class="view" id="viewCSchedule"><div id="cScheduleContent"><div class="loading-spinner">Loading...</div></div></div>
   </main>
   <nav class="bottom-nav" id="cNav">
     <button class="nav-item active" onclick="cSwitchTab('book')" data-ctab="book"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg><span class="nav-label">Book</span></button>
+    <button class="nav-item" onclick="cSwitchTab('schedule')" data-ctab="schedule"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="10"/></svg><span class="nav-label">Schedule</span></button>
     <button class="nav-item" onclick="cSwitchTab('profile')" data-ctab="profile"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span class="nav-label">Profile</span></button>
   </nav>
 </div>
@@ -401,9 +403,11 @@ function cBackToSlots(){document.getElementById('cSlots').style.display='';docum
 function cSwitchTab(tab){
   document.querySelectorAll('#appClient .view').forEach(v=>v.classList.remove('active'));
   document.querySelectorAll('#cNav .nav-item').forEach(n=>n.classList.remove('active'));
-  document.getElementById(tab==='book'?'viewCBook':'viewCProfile').classList.add('active');
+  const viewMap={book:'viewCBook',profile:'viewCProfile',schedule:'viewCSchedule'};
+  document.getElementById(viewMap[tab]).classList.add('active');
   document.querySelector(`[data-ctab="${tab}"]`).classList.add('active');
   if(tab==='profile')cRenderProfile();
+  if(tab==='schedule')cRenderSchedule();
 }
 function cRenderProfile(){
   if(!cClient)return;const c=cClient;
@@ -416,15 +420,37 @@ function cRenderProfile(){
   let histHTML='';
   if(c.statsHistory?.length>1){histHTML=`<div class="detail-notes" style="cursor:pointer" onclick="toggleHistory()"><div class="history-toggle"><div class="detail-notes-label" style="margin:0">Progress History (${c.statsHistory.length} entries)</div><svg class="history-toggle-icon" id="histIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></div><div class="history-body" id="histBody">${[...c.statsHistory].reverse().map(e=>`<div class="stat-history-entry"><div class="stat-history-date">${formatDateShort(e.date)}</div><div class="stat-history-values">${STAT_KEYS.map(k=>`<span>${STAT_LABELS[k].slice(0,3)}: <strong>${e[k]}</strong></span>`).join('')}</div></div>`).join('')}</div></div>`;}
   document.getElementById('cProfileContent').innerHTML=`
-    <div class="profile-header"><div class="profile-avatar" onclick="document.getElementById('cPhotoInput').click()">${c.photo?`<img src="${c.photo}">`:`<span>${getInitials(c.name)}</span>`}<div class="profile-avatar-edit">change</div><input type="file" id="cPhotoInput" accept="image/*" onchange="cHandlePhoto(this)" style="display:none"></div><div class="profile-name">${c.name}</div></div>
+    <div class="profile-header"><div class="profile-avatar" onclick="document.getElementById('cPhotoInput').click()">${c.photo?`<img src="${c.photo}">`:`<span>${getInitials(c.name)}</span>`}<input type="file" id="cPhotoInput" accept="image/*" onchange="cHandlePhoto(this)" style="display:none"></div><div class="profile-name">${c.name}</div></div>
+    <div style="margin-bottom:0.6rem"><div style="font-size:0.6rem;color:var(--text-faint);text-transform:uppercase;letter-spacing:0.3px;margin-bottom:0.25rem;text-align:center">Nickname</div><input class="form-input" id="cNickname" type="text" value="${c.nickname||''}" placeholder="Add a nickname..." style="text-align:center;max-width:200px;margin:0 auto;display:block;padding:0.45rem 0.7rem;font-size:0.9rem"></div>
     <div class="profile-fields"><div class="profile-field"><div class="profile-field-label">Age</div><input class="profile-field-input" id="cAge" type="number" inputmode="numeric" value="${c.age||''}" placeholder="--"><div class="profile-field-unit">years</div></div><div class="profile-field"><div class="profile-field-label">Weight</div><input class="profile-field-input" id="cWeight" type="number" inputmode="decimal" value="${c.weight||''}" placeholder="--"><div class="profile-field-unit">kg</div></div><div class="profile-field"><div class="profile-field-label">Height</div><input class="profile-field-input" id="cHeight" type="number" inputmode="numeric" value="${c.height||''}" placeholder="--"><div class="profile-field-unit">cm</div></div></div>
     <div class="profile-save-row"><button class="btn btn-primary btn-small" onclick="cSaveProfile()">Save Profile</button></div>
     ${statsHTML}${histHTML}`;
 }
 function cHandlePhoto(input){if(!input.files[0])return;openCropModal(input.files[0],async function(url){try{await db.collection('clients').doc(cClient.id).update({photo:url});cRenderProfile();}catch(e){console.error(e);}});}
-async function cSaveProfile(){const age=document.getElementById('cAge').value.trim(),weight=document.getElementById('cWeight').value.trim(),height=document.getElementById('cHeight').value.trim();try{await db.collection('clients').doc(cClient.id).update({age,weight,height});alert('Profile saved!');}catch(e){alert('Error saving.');}}
+async function cSaveProfile(){const nickname=document.getElementById('cNickname').value.trim(),age=document.getElementById('cAge').value.trim(),weight=document.getElementById('cWeight').value.trim(),height=document.getElementById('cHeight').value.trim();try{await db.collection('clients').doc(cClient.id).update({nickname,age,weight,height});alert('Profile saved!');}catch(e){alert('Error saving.');}}
 function toggleHistory(){document.getElementById('histBody').classList.toggle('open');document.getElementById('histIcon').classList.toggle('open');}
 function toggleUpcoming(){const b=document.getElementById('upcomingBody'),i=document.getElementById('upcomingIcon');if(b)b.classList.toggle('open');if(i)i.classList.toggle('open');}
+
+// CLIENT PORTAL: SCHEDULE
+async function cRenderSchedule(){
+  if(!cClient)return;const ct=document.getElementById('cScheduleContent');
+  ct.innerHTML='<div class="loading-spinner">Loading...</div>';
+  try{
+    const snap=await db.collection('sessions').where('clientId','==',cClient.id).get();
+    const sessions=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>a.date.localeCompare(b.date)||a.time.localeCompare(b.time));
+    const today=todayStr();
+    const upcoming=sessions.filter(s=>s.date>=today);
+    const past=sessions.filter(s=>s.date<today).sort((a,b)=>b.date.localeCompare(a.date)||b.time.localeCompare(a.time));
+    let html='<h2 style="font-size:1.1rem;font-weight:700;margin-bottom:0.6rem">Upcoming Sessions</h2>';
+    if(upcoming.length){let lastDate='';html+=upcoming.map(s=>{let dh='';if(s.date!==lastDate){lastDate=s.date;const isToday=s.date===today;dh=`<div style="font-size:0.72rem;font-weight:600;color:${isToday?'var(--gold)':'var(--text-dim)'};margin:0.5rem 0 0.3rem;text-transform:uppercase;letter-spacing:0.3px">${isToday?'Today':formatDate(s.date)}</div>`;}return dh+`<div class="card" style="cursor:default"><div class="card-row"><div><div class="card-name">${formatDate(s.date)}</div>${s.notes?`<div class="card-sub">${s.notes}</div>`:''}</div><div class="card-time">${s.time}</div></div></div>`;}).join('');}
+    else{html+='<div class="empty-state" style="padding:1rem"><p>No upcoming sessions</p></div>';}
+    html+='<h2 style="font-size:1.1rem;font-weight:700;margin:1.2rem 0 0.6rem">Past Sessions</h2>';
+    if(past.length){html+=past.slice(0,20).map(s=>`<div class="card" style="cursor:default;opacity:0.7"><div class="card-row"><div><div class="card-name">${formatDate(s.date)}</div>${s.notes?`<div class="card-sub">${s.notes}</div>`:''}</div><div class="card-time">${s.time}</div></div></div>`).join('');
+      if(past.length>20)html+=`<div style="text-align:center;font-size:0.75rem;color:var(--text-faint);padding:0.5rem">+ ${past.length-20} more sessions</div>`;}
+    else{html+='<div class="empty-state" style="padding:1rem"><p>No past sessions yet</p></div>';}
+    ct.innerHTML=html;
+  }catch(e){ct.innerHTML='<div class="empty-state"><p>Error loading sessions</p></div>';console.error(e);}
+}
 
 // ADMIN: NAVIGATION
 function switchView(view){currentView=view;document.querySelectorAll('#appAdmin .view').forEach(v=>v.classList.remove('active'));document.querySelectorAll('#appAdmin .nav-item').forEach(n=>n.classList.remove('active'));document.getElementById('view'+view.charAt(0).toUpperCase()+view.slice(1)).classList.add('active');const btn=document.querySelector(`[data-view="${view}"]`);if(btn)btn.classList.add('active');renderCurrentView();}
@@ -476,11 +502,18 @@ function aRenderDay(){
 }
 function openAvailabilityModal(){
   const date=aGetDate(),bt=aSessionsList.map(s=>s.time);
-  document.getElementById('modalContent').innerHTML=`<div class="modal-header"><div class="modal-title">Set Availability</div><button class="modal-close" onclick="closeModal()">&times;</button></div><div style="font-size:0.85rem;color:var(--text-dim);margin-bottom:0.8rem">${formatDateLong(date)}</div><div class="quick-btns"><button class="quick-btn" onclick="availQuick('morning')">Morning (7-12)</button><button class="quick-btn" onclick="availQuick('afternoon')">Afternoon (12-17)</button><button class="quick-btn" onclick="availQuick('evening')">Evening (17-21)</button><button class="quick-btn" onclick="availQuick('clear')">Clear All</button></div><div class="time-grid" id="timeGrid">${ALL_TIMES.map(t=>{const bk=bt.includes(t),sel=aAvailSlots.includes(t)||bk;return`<button class="time-chip ${bk?'booked':sel?'selected':''}" data-time="${t}" ${bk?'disabled':''} onclick="toggleTimeChip(this)">${t}${bk?' &#128274;':''}</button>`;}).join('')}</div><div class="form-actions"><button class="btn btn-secondary" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="saveAvailability('${date}')">Save</button></div>`;
+  document.getElementById('modalContent').innerHTML=`<div class="modal-header"><div class="modal-title">Set Availability</div><button class="modal-close" onclick="closeModal()">&times;</button></div><div style="font-size:0.85rem;color:var(--text-dim);margin-bottom:0.8rem">${formatDateLong(date)}</div><div class="quick-btns"><button class="quick-btn" id="qb_morning" onclick="availQuick('morning',this)">Morning (7-12)</button><button class="quick-btn" id="qb_afternoon" onclick="availQuick('afternoon',this)">Afternoon (12-17)</button><button class="quick-btn" id="qb_evening" onclick="availQuick('evening',this)">Evening (17-21)</button><button class="quick-btn" onclick="availQuick('clear')">Clear All</button></div><div class="time-grid" id="timeGrid">${ALL_TIMES.map(t=>{const bk=bt.includes(t),sel=aAvailSlots.includes(t)||bk;return`<button class="time-chip ${bk?'booked':sel?'selected':''}" data-time="${t}" ${bk?'disabled':''} onclick="toggleTimeChip(this)">${t}${bk?' &#128274;':''}</button>`;}).join('')}</div><div class="form-actions"><button class="btn btn-secondary" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="saveAvailability('${date}')">Save</button></div>`;
   document.getElementById('modalOverlay').classList.add('open');
 }
 function toggleTimeChip(el){if(!el.disabled)el.classList.toggle('selected');}
-function availQuick(p){document.querySelectorAll('#timeGrid .time-chip:not(.booked)').forEach(c=>{const h=parseInt(c.dataset.time);if(p==='clear')c.classList.remove('selected');else if(p==='morning'){if(h>=7&&h<12)c.classList.add('selected');}else if(p==='afternoon'){if(h>=12&&h<17)c.classList.add('selected');}else if(p==='evening'){if(h>=17&&h<=21)c.classList.add('selected');}});}
+function availQuick(p,btn){
+  const ranges={morning:[7,12],afternoon:[12,17],evening:[17,21]};
+  if(p==='clear'){document.querySelectorAll('#timeGrid .time-chip:not(.booked)').forEach(c=>c.classList.remove('selected'));document.querySelectorAll('.quick-btn').forEach(b=>{b.style.background='';b.style.color='';b.style.borderColor='';});return;}
+  const active=btn.dataset.active==='1';
+  document.querySelectorAll('#timeGrid .time-chip:not(.booked)').forEach(c=>{const h=parseInt(c.dataset.time);if(h>=ranges[p][0]&&h<ranges[p][1]){if(active)c.classList.remove('selected');else c.classList.add('selected');}});
+  if(active){btn.dataset.active='0';btn.style.background='';btn.style.color='';btn.style.borderColor='';}
+  else{btn.dataset.active='1';btn.style.background='var(--green-dim)';btn.style.color='var(--green)';btn.style.borderColor='var(--green)';}
+}
 async function saveAvailability(date){const sel=Array.from(document.querySelectorAll('#timeGrid .time-chip.selected:not(.booked)')).map(c=>c.dataset.time);try{await db.collection('availability').doc(date).set({slots:sel.sort()});closeModal();}catch(e){alert('Error saving.');}}
 
 // ADMIN: CLIENTS
@@ -489,7 +522,7 @@ function renderClients(){
   const filtered=allClients.filter(c=>c.name.toLowerCase().includes(q)).sort((a,b)=>a.name.localeCompare(b.name));
   const ct=document.getElementById('clientList');
   if(!filtered.length){ct.innerHTML=`<div class="empty-state"><div class="empty-state-icon">---</div><p>${allClients.length===0?'Add your first client':'No matches'}</p></div>`;return;}
-  ct.innerHTML=filtered.map(c=>{const latest=getLatestStats(c),avg=latest?Math.round(STAT_KEYS.reduce((s,k)=>s+(latest[k]||0),0)/STAT_KEYS.length):'--';return`<div class="card" onclick="showClientDetail('${c.id}')"><div class="card-row"><div class="client-avatar">${avatarHTML(c)}</div><div class="client-info"><div class="card-name">${c.name}</div><div class="client-phone">${c.phone||'No phone'}</div></div><div style="text-align:right"><div style="font-size:1rem;font-weight:700;color:${latest?'var(--gold)':'var(--text-faint)'}">${avg}</div><div style="font-size:0.6rem;color:var(--text-faint)">avg</div></div></div></div>`;}).join('');
+  ct.innerHTML=filtered.map(c=>{const latest=getLatestStats(c),avg=latest?Math.round(STAT_KEYS.reduce((s,k)=>s+(latest[k]||0),0)/STAT_KEYS.length):'--';return`<div class="card" onclick="showClientDetail('${c.id}')"><div class="card-row"><div class="client-avatar">${avatarHTML(c)}</div><div class="client-info"><div class="card-name">${c.name}</div><div class="client-phone">${c.nickname||'No nickname'}</div></div><div style="text-align:right"><div style="font-size:1rem;font-weight:700;color:${latest?'var(--gold)':'var(--text-faint)'}">${avg}</div><div style="font-size:0.6rem;color:var(--text-faint)">avg</div></div></div></div>`;}).join('');
 }
 
 // ADMIN: CLIENT DETAIL
@@ -509,7 +542,7 @@ function showClientDetail(clientId){
   let histHTML='';
   if(c.statsHistory?.length>1){histHTML=`<div class="detail-notes" style="cursor:pointer" onclick="toggleHistory()"><div class="history-toggle"><div class="detail-notes-label" style="margin:0">Progress History (${c.statsHistory.length} entries)</div><svg class="history-toggle-icon" id="histIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></div><div class="history-body" id="histBody">${[...c.statsHistory].reverse().map(e=>`<div class="stat-history-entry"><div class="stat-history-date">${formatDateShort(e.date)}</div><div class="stat-history-values">${STAT_KEYS.map(k=>`<span>${STAT_LABELS[k].slice(0,3)}: <strong>${e[k]}</strong></span>`).join('')}</div></div>`).join('')}</div></div>`;}
   document.getElementById('clientDetailContent').innerHTML=`
-    <div class="detail-header"><button class="detail-back" onclick="switchView('clients')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button><div class="detail-avatar">${avatarHTML(c)}</div><div><div class="detail-name">${c.name}</div><div class="detail-phone">${c.phone||'No phone'}</div>${meta?`<div class="detail-meta">${meta}</div>`:''}</div></div>
+    <div class="detail-header"><button class="detail-back" onclick="switchView('clients')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button><div class="detail-avatar">${avatarHTML(c)}</div><div><div class="detail-name">${c.name}</div><div class="detail-phone">${c.nickname||'No nickname'}</div>${meta?`<div class="detail-meta">${meta}</div>`:''}</div></div>
     <div class="detail-actions"><button class="btn btn-secondary btn-small" onclick="openModal('client','${c.id}')">Edit</button>${c.phone?`<a href="tel:${c.phone}" class="btn btn-success btn-small" style="text-decoration:none">Call</a>`:''}</div>
     ${c.notes?`<div class="detail-notes"><div class="detail-notes-label">Notes</div><div class="detail-notes-text">${c.notes}</div></div>`:''}
     <div class="detail-notes" style="cursor:pointer" onclick="toggleUpcoming('${c.id}')"><div class="detail-notes-label" style="display:flex;align-items:center;justify-content:space-between">Next Session <svg class="history-toggle-icon" id="upcomingIcon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></div><div class="detail-notes-text" id="nextSessionText">${upcoming.length?`${formatDate(upcoming[0].date)} at ${upcoming[0].time}`:'No upcoming sessions'}</div><div class="history-body" id="upcomingBody">${upcoming.length>1?upcoming.map(s=>`<div class="stat-history-entry"><div style="display:flex;justify-content:space-between"><span style="font-weight:600;color:var(--text)">${formatDate(s.date)} at ${s.time}</span><span style="color:var(--green)">${s.price||20}&euro;</span></div>${s.notes?`<div style="color:var(--text-dim);font-size:0.72rem;margin-top:0.1rem">${s.notes}</div>`:''}</div>`).join(''):''}${upcoming.length<=1?'<div style="padding:0.3rem 0;color:var(--text-faint);font-size:0.75rem">No more upcoming sessions</div>':''}</div></div>
