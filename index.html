@@ -588,9 +588,7 @@ async function migrateOldClients(){
 // INIT
 (async function init(){
   const params=new URLSearchParams(window.location.search),code=params.get('c');
-  if(code){localStorage.setItem('prle_client_code',code);showClientPortal(code);enableClientMode();return;}
-  const savedCode=localStorage.getItem('prle_client_code');
-  if(savedCode){showClientPortal(savedCode);enableClientMode();return;}
+  if(code){showClientPortal(code);enableClientMode();return;}
   enableAdminMode();showAdminView();
 })();
 
