@@ -1,4 +1,4 @@
-const CACHE='prle-v2';
+const CACHE='prle-v3';
 const URLS=['./','./index.html'];
 
 self.addEventListener('install',e=>{
