@@ -30,13 +30,6 @@
   .card-name { font-weight:600;font-size:0.95rem; } .card-sub { font-size:0.78rem;color:var(--text-dim);margin-top:0.1rem; }
   .card-time { font-size:0.85rem;font-weight:600;color:var(--gold);white-space:nowrap; } .card-price { font-size:0.75rem;color:var(--green);font-weight:600; }
   .empty-state { text-align:center;padding:2rem 1rem;color:var(--text-dim); } .empty-state-icon { font-size:2rem;margin-bottom:0.4rem;opacity:0.3; }
-  .pin-screen { display:none;position:fixed;inset:0;background:var(--bg);z-index:300;justify-content:center;align-items:center; } .pin-screen.open { display:flex; }
-  .pin-box { text-align:center;padding:2rem;width:100%;max-width:320px; }
-  .pin-title { font-size:1.3rem;font-weight:700;margin-bottom:0.3rem; } .pin-sub { font-size:0.8rem;color:var(--text-dim);margin-bottom:1.5rem; }
-  .pin-input { width:100%;padding:0.9rem;border-radius:12px;border:2px solid var(--border);background:var(--card);color:var(--text);font-size:1.5rem;font-weight:700;text-align:center;letter-spacing:0.5rem;outline:none;font-family:inherit;-moz-appearance:textfield; }
-  .pin-input:focus { border-color:var(--red); } .pin-input::-webkit-outer-spin-button,.pin-input::-webkit-inner-spin-button { -webkit-appearance:none; }
-  .pin-error { font-size:0.8rem;color:var(--red);margin-top:0.5rem;height:1.2rem; }
-  .pin-actions { margin-top:1rem;display:flex;gap:0.5rem; } .pin-actions .btn { flex:1; }
   .landing { text-align:center;padding:4rem 2rem;max-width:400px;margin:0 auto; }
   .landing-icon { font-size:3rem;margin-bottom:1rem;opacity:0.15; } .landing h2 { font-size:1.3rem;margin-bottom:0.5rem; } .landing p { color:var(--text-dim);font-size:0.9rem;line-height:1.5; }
   .booking-title { font-size:1.3rem;font-weight:700;margin-bottom:0.3rem; }
@@ -147,21 +140,10 @@
 </head>
 <body>
 
-<div class="pin-screen" id="pinScreen">
-  <div class="pin-box">
-    <div class="logo" style="font-size:2rem;margin-bottom:0.3rem"><span>P</span>rle</div>
-    <div class="pin-title" id="pinTitle">Trainer Login</div>
-    <div class="pin-sub" id="pinSub">Enter your PIN</div>
-    <input type="number" class="pin-input" id="pinInput" maxlength="6" placeholder="----" inputmode="numeric">
-    <div class="pin-error" id="pinError"></div>
-    <div class="pin-actions"><button class="btn btn-secondary" onclick="closePinScreen()">Cancel</button><button class="btn btn-primary" id="pinBtn" onclick="submitPin()">Login</button></div>
-  </div>
-</div>
-
 <div id="appLanding" style="display:none">
   <div class="topbar">
     <div><div class="logo"><span>P</span>rle</div><div class="topbar-sub">Boxing Trainer</div></div>
-    <button class="admin-link" onclick="showPinScreen()" title="Trainer Login"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></button>
+    <button class="admin-link" onclick="localStorage.setItem('prle_admin','true');showAdminView()" title="Trainer Login"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></button>
   </div>
   <div class="landing">
     <div class="landing-icon">&#129354;</div>
@@ -359,14 +341,6 @@ function adminLogout(){
   if(allSessionsUnsub){allSessionsUnsub();allSessionsUnsub=null;}
   showLanding();
 }
-
-// PIN
-let adminPin=null,pinMode='login';
-async function loadPin(){try{const doc=await db.collection('config').doc('settings').get();if(doc.exists&&doc.data().pin){adminPin=doc.data().pin;return true;}return false;}catch(e){return false;}}
-function showPinScreen(){const s=document.getElementById('pinScreen'),inp=document.getElementById('pinInput'),err=document.getElementById('pinError');inp.value='';err.textContent='';loadPin().then(has=>{if(has){pinMode='login';document.getElementById('pinTitle').textContent='Trainer Login';document.getElementById('pinSub').textContent='Enter your PIN';document.getElementById('pinBtn').textContent='Login';}else{pinMode='setup';document.getElementById('pinTitle').textContent='Set Up PIN';document.getElementById('pinSub').textContent='Create a PIN for admin access';document.getElementById('pinBtn').textContent='Set PIN';}s.classList.add('open');setTimeout(()=>inp.focus(),100);});}
-function closePinScreen(){document.getElementById('pinScreen').classList.remove('open');}
-async function submitPin(){const inp=document.getElementById('pinInput'),err=document.getElementById('pinError'),val=inp.value.trim();if(!val||val.length<4){err.textContent='PIN must be at least 4 digits';return;}if(pinMode==='setup'){try{await db.collection('config').doc('settings').set({pin:val,defaultPrice:20},{merge:true});adminPin=val;localStorage.setItem('prle_admin','true');closePinScreen();showAdminView();}catch(e){err.textContent='Error saving PIN.';}}else{if(val===adminPin){localStorage.setItem('prle_admin','true');closePinScreen();showAdminView();}else{err.textContent='Wrong PIN';inp.value='';inp.focus();}}}
-document.getElementById('pinInput').addEventListener('keydown',e=>{if(e.key==='Enter')submitPin();});
 
 // CLIENT PORTAL: BOOKING
 function cGetDate(){return dateStr(getWeekDates(cWeekOffset)[cSelectedDay]);}
@@ -636,7 +610,7 @@ async function migrateOldClients(){
   if(code){localStorage.setItem('prle_client_code',code);showClientPortal(code);return;}
   const savedCode=localStorage.getItem('prle_client_code');
   if(savedCode){showClientPortal(savedCode);return;}
-  if(localStorage.getItem('prle_admin')){const has=await loadPin();if(has){showAdminView();return;}}
+  if(localStorage.getItem('prle_admin')){showAdminView();return;}
   showLanding();
 })();
 
