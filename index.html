@@ -6,7 +6,6 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#0c0c14">
-<link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.png">
 <title>Prle - Boxing Trainer</title>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
@@ -589,13 +588,20 @@ async function migrateOldClients(){
 // INIT
 (async function init(){
   const params=new URLSearchParams(window.location.search),code=params.get('c');
-  if(code){localStorage.setItem('prle_client_code',code);showClientPortal(code);return;}
+  if(code){localStorage.setItem('prle_client_code',code);showClientPortal(code);enableClientMode();return;}
   const savedCode=localStorage.getItem('prle_client_code');
-  if(savedCode){showClientPortal(savedCode);return;}
-  showAdminView();
+  if(savedCode){showClientPortal(savedCode);enableClientMode();return;}
+  enableAdminMode();showAdminView();
 })();
 
-if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js').catch(e=>console.log('SW error:',e));}
+function enableAdminMode(){
+  const m=document.createElement('link');m.rel='manifest';m.href='manifest.json';document.head.appendChild(m);
+  if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(e=>console.log('SW error:',e));
+}
+function enableClientMode(){
+  if('serviceWorker' in navigator)navigator.serviceWorker.getRegistrations().then(regs=>regs.forEach(r=>r.unregister()));
+  caches.keys().then(keys=>keys.forEach(k=>caches.delete(k)));
+}
 </script>
 </body>
 </html>
