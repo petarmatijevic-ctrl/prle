@@ -243,7 +243,7 @@ function sendBookingEmail(clientName,date,time,notes,photo){
   emailjs.send('service_zctcl0x','template_4ym8idl',{to_email:'prsljaluka17@gmail.com',client_name:clientName,date:formatDateLong(date),time:time,notes:notes||'No notes',photo:photo||'',subject:'New Booking: '+clientName,type:'booked'}).then(()=>console.log('Email sent')).catch(e=>console.error('Email error:',e));
 }
 function sendCancelEmail(clientName,date,time){
-  emailjs.send('service_zctcl0x','template_4ym8idl',{to_email:'prsljaluka17@gmail.com',client_name:clientName,date:formatDateLong(date),time:time,notes:'Session cancelled by client',photo:'',subject:'Cancelled: '+clientName,type:'cancelled'}).then(()=>console.log('Cancel email sent')).catch(e=>console.error('Email error:',e));
+  emailjs.send('service_zctcl0x','template_4ym8idl',{to_email:'prsljaluka17@gmail.com',client_name:clientName,date:formatDateLong(date),time:time,notes:'Session cancelled by client',photo:'',subject:'Booking Cancelled: '+clientName,type:'cancelled'}).then(()=>console.log('Cancel email sent')).catch(e=>console.error('Email error:',e));
 }
 
 const STAT_KEYS=['footwork','speed','strength','power','endurance','heart'];
