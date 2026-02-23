@@ -240,7 +240,10 @@ firebase.initializeApp({apiKey:"AIzaSyCqQb62v7xeTh2zDRkj4VU8XDK0ZUAn0So",authDom
 const db=firebase.firestore();
 emailjs.init('OtCjpsPcUAQ4P5UJj');
 function sendBookingEmail(clientName,date,time,notes,photo){
-  emailjs.send('service_zctcl0x','template_4ym8idl',{to_email:'prsljaluka17@gmail.com',client_name:clientName,date:formatDateLong(date),time:time,notes:notes||'No notes',photo:photo||''}).then(()=>console.log('Email sent')).catch(e=>console.error('Email error:',e));
+  emailjs.send('service_zctcl0x','template_4ym8idl',{to_email:'prsljaluka17@gmail.com',client_name:clientName,date:formatDateLong(date),time:time,notes:notes||'No notes',photo:photo||'',subject:'New Booking: '+clientName,type:'booked'}).then(()=>console.log('Email sent')).catch(e=>console.error('Email error:',e));
+}
+function sendCancelEmail(clientName,date,time){
+  emailjs.send('service_zctcl0x','template_4ym8idl',{to_email:'prsljaluka17@gmail.com',client_name:clientName,date:formatDateLong(date),time:time,notes:'Session cancelled by client',photo:'',subject:'Cancelled: '+clientName,type:'cancelled'}).then(()=>console.log('Cancel email sent')).catch(e=>console.error('Email error:',e));
 }
 
 const STAT_KEYS=['footwork','speed','strength','power','endurance','heart'];
@@ -349,7 +352,7 @@ function showAdminView(){
 }
 
 function adminLogout(){
-  sessionStorage.removeItem('prle_admin');
+  localStorage.removeItem('prle_admin');
   if(clientsUnsub){clientsUnsub();clientsUnsub=null;}
   if(aSessionsUnsub){aSessionsUnsub();aSessionsUnsub=null;}
   if(aAvailUnsub){aAvailUnsub();aAvailUnsub=null;}
@@ -362,7 +365,7 @@ let adminPin=null,pinMode='login';
 async function loadPin(){try{const doc=await db.collection('config').doc('settings').get();if(doc.exists&&doc.data().pin){adminPin=doc.data().pin;return true;}return false;}catch(e){return false;}}
 function showPinScreen(){const s=document.getElementById('pinScreen'),inp=document.getElementById('pinInput'),err=document.getElementById('pinError');inp.value='';err.textContent='';loadPin().then(has=>{if(has){pinMode='login';document.getElementById('pinTitle').textContent='Trainer Login';document.getElementById('pinSub').textContent='Enter your PIN';document.getElementById('pinBtn').textContent='Login';}else{pinMode='setup';document.getElementById('pinTitle').textContent='Set Up PIN';document.getElementById('pinSub').textContent='Create a PIN for admin access';document.getElementById('pinBtn').textContent='Set PIN';}s.classList.add('open');setTimeout(()=>inp.focus(),100);});}
 function closePinScreen(){document.getElementById('pinScreen').classList.remove('open');}
-async function submitPin(){const inp=document.getElementById('pinInput'),err=document.getElementById('pinError'),val=inp.value.trim();if(!val||val.length<4){err.textContent='PIN must be at least 4 digits';return;}if(pinMode==='setup'){try{await db.collection('config').doc('settings').set({pin:val,defaultPrice:20},{merge:true});adminPin=val;sessionStorage.setItem('prle_admin','true');closePinScreen();showAdminView();}catch(e){err.textContent='Error saving PIN.';}}else{if(val===adminPin){sessionStorage.setItem('prle_admin','true');closePinScreen();showAdminView();}else{err.textContent='Wrong PIN';inp.value='';inp.focus();}}}
+async function submitPin(){const inp=document.getElementById('pinInput'),err=document.getElementById('pinError'),val=inp.value.trim();if(!val||val.length<4){err.textContent='PIN must be at least 4 digits';return;}if(pinMode==='setup'){try{await db.collection('config').doc('settings').set({pin:val,defaultPrice:20},{merge:true});adminPin=val;localStorage.setItem('prle_admin','true');closePinScreen();showAdminView();}catch(e){err.textContent='Error saving PIN.';}}else{if(val===adminPin){localStorage.setItem('prle_admin','true');closePinScreen();showAdminView();}else{err.textContent='Wrong PIN';inp.value='';inp.focus();}}}
 document.getElementById('pinInput').addEventListener('keydown',e=>{if(e.key==='Enter')submitPin();});
 
 // CLIENT PORTAL: BOOKING
@@ -450,7 +453,7 @@ async function cRenderSchedule(){
     const upcoming=sessions.filter(s=>s.date>=today);
     const past=sessions.filter(s=>s.date<today).sort((a,b)=>b.date.localeCompare(a.date)||b.time.localeCompare(a.time));
     let html='<h2 style="font-size:1.1rem;font-weight:700;margin-bottom:0.6rem">Upcoming Sessions</h2>';
-    if(upcoming.length){let lastDate='';html+=upcoming.map(s=>{let dh='';if(s.date!==lastDate){lastDate=s.date;const isToday=s.date===today;dh=`<div style="font-size:0.72rem;font-weight:600;color:${isToday?'var(--gold)':'var(--text-dim)'};margin:0.5rem 0 0.3rem;text-transform:uppercase;letter-spacing:0.3px">${isToday?'Today':formatDate(s.date)}</div>`;}return dh+`<div class="card" style="cursor:default"><div class="card-row"><div><div class="card-name">${formatDate(s.date)}</div>${s.notes?`<div class="card-sub">${s.notes}</div>`:''}</div><div class="card-time">${s.time}</div></div></div>`;}).join('');}
+    if(upcoming.length){let lastDate='';html+=upcoming.map(s=>{let dh='';if(s.date!==lastDate){lastDate=s.date;const isToday=s.date===today;dh=`<div style="font-size:0.72rem;font-weight:600;color:${isToday?'var(--gold)':'var(--text-dim)'};margin:0.5rem 0 0.3rem;text-transform:uppercase;letter-spacing:0.3px">${isToday?'Today':formatDate(s.date)}</div>`;}return dh+`<div class="card" style="cursor:default"><div class="card-row"><div><div class="card-name">${formatDate(s.date)}</div>${s.notes?`<div class="card-sub">${s.notes}</div>`:''}</div><div style="display:flex;align-items:center;gap:0.5rem"><div class="card-time">${s.time}</div><button class="btn btn-danger btn-small" style="font-size:0.65rem;padding:0.25rem 0.5rem" onclick="event.stopPropagation();cCancelSession('${s.id}','${s.date}','${s.time}')">Cancel</button></div></div></div>`;}).join('');}
     else{html+='<div class="empty-state" style="padding:1rem"><p>No upcoming sessions</p></div>';}
     html+='<h2 style="font-size:1.1rem;font-weight:700;margin:1.2rem 0 0.6rem">Past Sessions</h2>';
     if(past.length){html+=past.slice(0,20).map(s=>`<div class="card" style="cursor:default;opacity:0.7"><div class="card-row"><div><div class="card-name">${formatDate(s.date)}</div>${s.notes?`<div class="card-sub">${s.notes}</div>`:''}</div><div class="card-time">${s.time}</div></div></div>`).join('');
@@ -458,6 +461,19 @@ async function cRenderSchedule(){
     else{html+='<div class="empty-state" style="padding:1rem"><p>No past sessions yet</p></div>';}
     ct.innerHTML=html;
   }catch(e){ct.innerHTML='<div class="empty-state"><p>Error loading sessions</p></div>';console.error(e);}
+}
+
+function cCancelSession(id,date,time){
+  document.getElementById('modalContent').innerHTML=`<div class="modal-header"><div class="modal-title">Cancel Session</div><button class="modal-close" onclick="closeModal()">&times;</button></div><div class="confirm-dialog"><p>Cancel your session on <strong>${formatDate(date)}</strong> at <strong>${time}</strong>?</p><div class="form-actions"><button class="btn btn-secondary" onclick="closeModal()">Keep</button><button class="btn btn-danger" onclick="cConfirmCancel('${id}','${date}','${time}')">Cancel Session</button></div></div>`;
+  document.getElementById('modalOverlay').classList.add('open');
+}
+async function cConfirmCancel(id,date,time){
+  try{
+    await db.collection('sessions').doc(id).delete();
+    await db.collection('availability').doc(date).set({slots:firebase.firestore.FieldValue.arrayUnion(time)},{merge:true});
+    sendCancelEmail(cClient.name,date,time);
+    closeModal();cRenderSchedule();cRenderWeek();
+  }catch(e){console.error(e);alert('Error cancelling session.');}
 }
 
 // ADMIN: NAVIGATION
@@ -617,8 +633,10 @@ async function migrateOldClients(){
 // INIT
 (async function init(){
   const params=new URLSearchParams(window.location.search),code=params.get('c');
-  if(code){showClientPortal(code);return;}
-  if(sessionStorage.getItem('prle_admin')){const has=await loadPin();if(has){showAdminView();return;}}
+  if(code){localStorage.setItem('prle_client_code',code);showClientPortal(code);return;}
+  const savedCode=localStorage.getItem('prle_client_code');
+  if(savedCode){showClientPortal(savedCode);return;}
+  if(localStorage.getItem('prle_admin')){const has=await loadPin();if(has){showAdminView();return;}}
   showLanding();
 })();
 
