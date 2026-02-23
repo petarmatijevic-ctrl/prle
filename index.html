@@ -140,16 +140,6 @@
 </head>
 <body>
 
-<div id="appLanding" style="display:none">
-  <div class="topbar">
-    <div><div class="logo"><span>P</span>rle</div><div class="topbar-sub">Boxing Trainer</div></div>
-  </div>
-  <div class="landing">
-    <div class="landing-icon">&#129354;</div>
-    <h2>Welcome to Prle</h2>
-    <p>Ask your trainer for your personal booking link to schedule sessions and view your stats.</p>
-  </div>
-</div>
 
 <div id="appClient" style="display:none">
   <div class="topbar">
@@ -309,14 +299,13 @@ let aSessionsUnsub=null,aAvailUnsub=null,aSessionsList=[],aAvailSlots=[];
 let allSessions=[],allSessionsUnsub=null;
 
 // MODE SWITCHING
-function hideAll(){['appLanding','appClient','appAdmin'].forEach(id=>document.getElementById(id).style.display='none');}
-function showLanding(){hideAll();mode='landing';document.getElementById('appLanding').style.display='';}
+function hideAll(){['appClient','appAdmin'].forEach(id=>document.getElementById(id).style.display='none');}
 
 async function showClientPortal(code){
   hideAll();mode='client';document.getElementById('appClient').style.display='';
   try{
     const snap=await db.collection('clients').where('code','==',code).limit(1).get();
-    if(snap.empty){document.getElementById('appClient').style.display='none';document.getElementById('appLanding').style.display='';alert('Invalid link. Ask your trainer for your booking link.');return;}
+    if(snap.empty){document.getElementById('appClient').style.display='none';localStorage.removeItem('prle_client_code');alert('Invalid link. Ask your trainer for your booking link.');showAdminView();return;}
     cClient={id:snap.docs[0].id,...snap.docs[0].data()};
     document.getElementById('cTopName').textContent=cClient.name;
     document.getElementById('cBookName').textContent=cClient.name;
@@ -333,12 +322,6 @@ function showAdminView(){
 }
 
 function adminLogout(){
-  localStorage.removeItem('prle_admin');
-  if(clientsUnsub){clientsUnsub();clientsUnsub=null;}
-  if(aSessionsUnsub){aSessionsUnsub();aSessionsUnsub=null;}
-  if(aAvailUnsub){aAvailUnsub();aAvailUnsub=null;}
-  if(allSessionsUnsub){allSessionsUnsub();allSessionsUnsub=null;}
-  showLanding();
 }
 
 // CLIENT PORTAL: BOOKING
@@ -609,8 +592,7 @@ async function migrateOldClients(){
   if(code){localStorage.setItem('prle_client_code',code);showClientPortal(code);return;}
   const savedCode=localStorage.getItem('prle_client_code');
   if(savedCode){showClientPortal(savedCode);return;}
-  if(localStorage.getItem('prle_admin')){showAdminView();return;}
-  showLanding();
+  showAdminView();
 })();
 
 if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js').catch(e=>console.log('SW error:',e));}
